@@ -6,5 +6,12 @@
       "path": "/graphql",
       "auth": "bearer-token"
     }
+  },
+  "models": {
+    "janus-flow": {
+      "sourceModel": "deepseek-ai/JanusFlow-1.3B",
+      "provider": "hugging-face",
+      "connection": "hypermode"
+    }
   }
 }
