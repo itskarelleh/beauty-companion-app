@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MODUS_DIR: "modus-backend"
+  MODUS_DIR: "./modus-backend"
 
 permissions:
   contents: read
