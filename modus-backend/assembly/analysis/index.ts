@@ -1,21 +1,3 @@
-import { models } from "@hypermode/modus-sdk-as"
-import { EmbeddingsModel } from "@hypermode/modus-sdk-as/models/experimental/embeddings"
-
-interface Conversation {
-    role: string
-    content: string
-    images: string[]
-}
-
-export function getAnalysis(conversations: Conversation[]): string {
-    const model = models.getModel<EmbeddingsModel>("janus-flow")
-    const input = model.createInput(conversations.map((c) => c.content))
-    const output = model.invoke(input)
-
-    const prediction = output.predictions[0]
-
-    return prediction.map<string>((d) => d.toString()).join("\n")
-}
 
 
 // import torch
@@ -66,3 +48,21 @@ export function getAnalysis(conversations: Conversation[]): string {
 
 // answer = tokenizer.decode(outputs[0].cpu().tolist(), skip_special_tokens=True)
 // print(f"{prepare_inputs['sft_format'][0]}", answer)
+
+// example query
+// query {
+//     analysis(conversations: [{role: "User", 
+//                               content: "What is this an image of?", 
+//                               images: ["https://images.pexels.com/photos/19797390/pexels-photo-19797390/free-photo-of-beautiful-model-in-oregon-wearing-a-forest-green-linen-dress-portrait-taken-by-portland-photographer-lance-reis-on-my-sonya7iii-on-location.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load"]
+//                              }
+//              ] 
+//       )
+//   }
+
+// query {
+//     analysis(conversation: {
+//         role: "User", 
+//         content: "What is this an image of?", 
+//         images: ["https://images.pexels.com/photos/19797390/pexels-photo-19797390/free-photo-of-beautiful-model-in-oregon-wearing-a-forest-green-linen-dress-portrait-taken-by-portland-photographer-lance-reis-on-my-sonya7iii-on-location.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load"]
+//     })
+// }
