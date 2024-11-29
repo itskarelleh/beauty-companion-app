@@ -8,18 +8,20 @@
     }
   },
   "models": {
-    "janus-flow": {
-      "sourceModel": "deepseek-ai/JanusFlow-1.3B",
-      "provider": "hugging-face",
-      "connection": "hypermode"
+    "text-generator": {
+      "sourceModel": "claude-3-5-sonnet-20240620",
+      "connection": "anthropic",
+      "path": "v1/messages"
     }
   },
   "connections": {
     "anthropic": {
       "type": "http",
-      "baseUrl": "https://api.anthropic.com/v1/messages/",
+      "baseUrl": "https://api.anthropic.com/",
       "headers": {
-        "Authorization": "Bearer ${MODUS_CLAUDE_API_KEY}"
+        "x-api-key": "{{API_KEY}}",
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
       }
     }
   }

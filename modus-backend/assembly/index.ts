@@ -1,103 +1,38 @@
-// import { getAnalysis } from "./analysis";
 import { models } from "@hypermode/modus-sdk-as"
-import { Generat}
-import {
-  OpenAIChatModel,
-  ResponseFormat,
-  SystemMessage,
-  UserMessage,
-} from "@hypermode/modus-sdk-as/models/openai/chat"
 import { JSON } from "json-as"
+// import { 
+//   OpenAIChatModel, 
+//   OpenAIChatOutput, 
+//   SystemMessage, 
+//   UserMessage
+// } 
+// from "@hypermode/modus-sdk-as/models/openai/chat"
+import { AnthropicMessagesModel, AnthropicMessagesInput, UserMessage, Message, AnthropicMessagesOutput } from "@hypermode/modus-sdk-as/models/anthropic/messages"
 
-interface Conversation { role: String, content: String, images: String[] }
 
-function doAnalysis(conversation: Conversation): string {
-    const model = models.getModel<Auto("janus-flow")
-    const input = model.createInput([
-        new UserMessage(conversation.content.toString()),
-    ])
-    const output = model.invoke(input)
+function generateSkinAnalysis(
+  // role: string = 'You are an esthetician and you have to recommend products either by brand or ingredients so that the client can treat their skin ailments and conditions.', 
+  // prompt: string = 'What skincare products would you recommend based on the user\'s image?', 
+  // images: string[] = ['https://a-ap.storyblok.com/f/3000428/768x630/28a81ba4b5/acne-awareness_blog-images3.jpg']
+): AnthropicMessagesOutput {
+  console.log("generating skin analysis...")
+  const model = models.getModel<AnthropicMessagesModel>("text-generator")
 
-    console.log(JSON.stringify(output))
+  const input: AnthropicMessagesInput = model.createInput([
+    new Message('user', 
+      `[Image: 'https://a-ap.storyblok.com/f/3000428/768x630/28a81ba4b5/acne-awareness_blog-images3.jpg'}] 
+      \nhttps://a-ap.storyblok.com/f/3000428/768x630/28a81ba4b5/acne-awareness_blog-images3.jpg`)
+  ])
 
-    const prediction: string = output.choices[0].message.content
-    console.log(JSON.stringify(prediction))
+  const output = model.invoke(input)
 
-    // return JSON.stringify(prediction[0]);
-    return "Hello, World!"
+  console.log(output.content[0].text || '')
+
+  return output
 }
 
 function sayHello(name: string | null = null): string {
   return `Hello, ${name || "World"}!`;
 }
 
-export { doAnalysis, sayHello };
-
-
-
-// import torch
-// from janus.janusflow.models import MultiModalityCausalLM, VLChatProcessor
-// from janus.utils.io import load_pil_images
-
-
-// const model_path = "deepseek-ai/JanusFlow-1.3B"
-
-// specify the path to the model
-// const vl_chat_processor: VLChatProcessor = VLChatProcessor.from_pretrained(model_path)
-// const tokenizer = vl_chat_processor.tokenizer
-
-// vl_gpt = MultiModalityCausalLM.from_pretrained(
-//     model_path, trust_remote_code=True
-// )
-// vl_gpt = vl_gpt.to(torch.bfloat16).cuda().eval()
-
-// conversation = [
-//     {
-//         "role": "User",
-//         "content": "<image_placeholder>\nConvert the formula into latex code.",
-//         "images": ["images/equation.png"],
-//     },
-//     {"role": "Assistant", "content": ""},
-// ]
-
-// # load images and prepare for inputs
-// pil_images = load_pil_images(conversation)
-// prepare_inputs = vl_chat_processor(
-//     conversations=conversation, images=pil_images, force_batchify=True
-// ).to(vl_gpt.device)
-
-// # # run image encoder to get the image embeddings
-// inputs_embeds = vl_gpt.prepare_inputs_embeds(**prepare_inputs)
-
-// # # run the model to get the response
-// outputs = vl_gpt.language_model.generate(
-//     inputs_embeds=inputs_embeds,
-//     attention_mask=prepare_inputs.attention_mask,
-//     pad_token_id=tokenizer.eos_token_id,
-//     bos_token_id=tokenizer.bos_token_id,
-//     eos_token_id=tokenizer.eos_token_id,
-//     max_new_tokens=512,
-//     do_sample=False,
-//     use_cache=True,
-// )
-
-// answer = tokenizer.decode(outputs[0].cpu().tolist(), skip_special_tokens=True)
-// print(f"{prepare_inputs['sft_format'][0]}", answer)
-
-// example query
-// query {
-//     analysis(conversations: [{role: "User", 
-//                               content: "What is this an image of?", 
-//                               images: ["https://images.pexels.com/photos/19797390/pexels-photo-19797390/free-photo-of-beautiful-model-in-oregon-wearing-a-forest-green-linen-dress-portrait-taken-by-portland-photographer-lance-reis-on-my-sonya7iii-on-location.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load"]
-//                              }
-//              ] 
-//       )
-//   }
-
-// query {
-//     analysis(conversation: {
-//         role: "User", 
-//         content: "What is this an image of?", 
-//         images: ["https://images.pexels.com/photos/19797390/pexels-photo-19797390/free-photo-of-beautiful-model-in-oregon-wearing-a-forest-green-linen-dress-portrait-taken-by-portland-photographer-lance-reis-on-my-sonya7iii-on-location.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load"]
-//     })
-// }
+export { generateSkinAnalysis, sayHello };
