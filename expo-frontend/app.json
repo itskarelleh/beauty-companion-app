@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -50,6 +50,12 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "react-native-auth0",
+        {
+          "domain": "beauty-companion.us.auth0.com"
+        }
       ]
     ],
     "experiments": {
@@ -63,6 +69,6 @@
         "projectId": "ef4a87e5-bc73-47ca-a77f-3f0d30595615"
       }
     },
-    "owner": "kreative94"
+    "owner": "itskarelleh"
   }
 }
