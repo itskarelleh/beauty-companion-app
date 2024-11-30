@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TextInput } from "react-native";
 import { Image } from "expo-image";
 import { Picker } from "@react-native-picker/picker";
 import ViewWithBottomButton from "../components/views/ViewWithBottomButton";
-import { useRouter } from "expo-router";
 import NineBySixteenCamera from "@/components/NineBySixteenCamera";
 import axios from "axios";
 
@@ -14,11 +13,11 @@ export default function Onboarding() {
         skinTone: "",
         skinType: ""
     });
+
     const [ images, setImages ] = useState<string[]>([]);
     const [currentStep, setCurrentStep] = useState(0);
     const [analysisResults, setAnalysisResults] = useState<any[]>([]);
-    const router = useRouter();
-
+    
     const handleInputChange = (field: string, value: string) => {
         setNewUser(prevState => ({
             ...prevState,
@@ -118,11 +117,12 @@ export default function Onboarding() {
         `,
         variables: { userProfile: newUser, images: images }
       });
-      console.log(response.data);
 
-        setAnalysisResults(response.data.data.generateSkinAnalysis);
+      console.log(response);
+
+      setAnalysisResults(response.data.data.generateSkinAnalysis);
     } catch (error) {
-        console.error('Error during analysis:', error);
+      console.error('Error during analysis:', error);
         console.log("User profile:", newUser);
         console.log("Images:", images);
     }
