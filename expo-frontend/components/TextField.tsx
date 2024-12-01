@@ -1,21 +1,34 @@
 import { Colors } from "@/constants/Colors";
-import { KeyboardTypeOptions, StyleSheet, TextInput, useColorScheme } from "react-native";
+import { KeyboardTypeOptions, 
+  NativeSyntheticEvent,
+  TextInputChangeEventData, 
+  StyleSheet, 
+  TextInput, 
+  useColorScheme 
+} from "react-native";
 
 interface TextFieldProps {
     placeholder: string;
-    onChangeText: (text: string) => void;
+    onChange: (e: NativeSyntheticEvent<TextInputChangeEventData>) => void;
     defaultValue?: string;
     value?: string;
     keyboardType?: KeyboardTypeOptions,
-    props?: TextFieldProps
+    type?: 'password' | 'email' | 'text',
+    onBlur?: () => void;
 }
-export default function TextField({ placeholder, onChangeText, defaultValue, value, keyboardType, ...props } : TextFieldProps) {
+
+export function TextField({ placeholder, onChange, defaultValue, value, keyboardType, type, onBlur } : TextFieldProps) {
   const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
-  return <TextInput style={[styles(themeColorScheme).textField]} 
-  placeholder={placeholder} 
-  onChangeText={onChangeText} 
-  defaultValue={defaultValue} 
-  value={value} />;
+  return (
+    <TextInput style={[styles(themeColorScheme).textField]} 
+    placeholder={placeholder} 
+    onChange={onChange} 
+    defaultValue={defaultValue} 
+    keyboardType={keyboardType}
+    secureTextEntry={type === 'password'}
+    textContentType={type === 'email' ? 'emailAddress' : type === 'text' ? 'none' : type === 'password' ? 'password' : 'none'}
+    value={value} />
+  );
 }
 
 const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({

@@ -16,7 +16,9 @@ export const Colors = {
     tabIconSelected: tintColorLight,
     button: {
       background: '#121212',
-      text: '#fff',
+      text: '#cfcfcf',
+      disabledBackground: '#CCCCCC',
+      disabledText: '#808080'
     },
     border: '#121212',
   },
@@ -31,6 +33,6 @@ export const Colors = {
       background: '#fff',
       text: '#151718',
     },
-    border: '#fff',
+    border: '#121212',
   },
 };

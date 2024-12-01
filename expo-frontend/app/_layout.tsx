@@ -5,10 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { SessionProvider } from '@/libs/SessionProvider';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
-// import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,17 +31,19 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={isPhoneWidth ? styles.phoneContainer : styles.fullWidthContainer}>
       <ThemeProvider value={DefaultTheme}>
-        <SessionProvider>
-          <Stack>
+        <View style={isPhoneWidth ? styles.phoneContainer : styles.fullWidthContainer}>
+          <Stack screenOptions={{ headerTransparent: true, headerShadowVisible: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerTitle: "" }} />
+            <Stack.Screen name="login" options={{ headerTitle: "" }} />
+            <Stack.Screen name="login-email" options={{ headerTitle: "" }} />
             <Stack.Screen name="+not-found" />
           </Stack>
           <StatusBar style="auto" />
-        </SessionProvider>
+        </View>
       </ThemeProvider>
-    </View>
   );
 }
 
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flex: 1,
     backgroundColor: Colors.light.background,
+    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.1)",
   },
   fullWidthContainer: {
     flex: 1,

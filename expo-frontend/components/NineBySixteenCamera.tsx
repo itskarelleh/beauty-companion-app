@@ -1,13 +1,12 @@
-import { CameraView, CameraType, useCameraPermissions, Camera, CameraPictureOptions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useEffect, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function NineBySixteenCamera({ onTakePhoto }: { onTakePhoto: (image: string) => void }) {
+export default function NineBySixteenCamera({ setImages }: { setImages: (images: string[]) => void }) {
   const [facing, setFacing] = useState<CameraType>('front');
   const [permission, requestPermission] = useCameraPermissions();
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
   const cameraRef = useRef<Camera | null>(null);
-  const [photos, setPhotos] = useState<string[]>([]);
 
   useEffect(() => {
     checkCameraTypes();
@@ -39,19 +38,18 @@ export default function NineBySixteenCamera({ onTakePhoto }: { onTakePhoto: (ima
     );
   }
 
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
+  // function toggleCameraFacing() {
+  //   setFacing(current => (current === 'back' ? 'front' : 'back'));
+  // }
 
   const handleTakePhoto = async () => {
     if (cameraRef.current) {
       try {
-        const photo = await cameraRef.current.takePictureAsync();
-        console.log("Photo taken:", photo);
-        console.log("Before adding photo:", photos);
-        setPhotos((prevPhotos) => [...prevPhotos, photo.base64]);
-        console.log("After adding photo:", photos);
-        onTakePhoto(photo.base64);
+        const photo = await cameraRef.current?.takePictureAsync();
+        const photos = [];
+
+        photos.push(photo?.base64);
+        setImages(photos);
       } catch (error) {
         console.error("Error taking photo:", error);
       }

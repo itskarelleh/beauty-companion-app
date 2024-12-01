@@ -14,7 +14,7 @@
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
       },
-      "bundleIdentifier": "com.kreative94.beautycompanionexpo"
+      "bundleIdentifier": "com.itskarelleh.beautycompanionexpo"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +25,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.kreative94.beautycompanionexpo"
+      "package": "com.itskarelleh.beautycompanionexpo"
     },
     "web": {
       "bundler": "metro",
