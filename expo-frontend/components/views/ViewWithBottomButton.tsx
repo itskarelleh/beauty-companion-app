@@ -1,15 +1,15 @@
+import { Colors } from "@/constants/Colors";
 import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-
+import { Typography } from "@/constants/Typography";
 export default function ViewWithBottomButton({ children, onNext, buttonHidden }: { children: React.ReactNode, onNext: () => void, buttonHidden?: boolean }) {
-  const [step, setStep] = useState(0);
 
   return (
     <View style={styles.container}>
       {children}
       <View style={styles.bottomButtonContainer}>
         {!buttonHidden && <TouchableOpacity style={styles.bottomButton} onPress={onNext}>
-          <Text>Next</Text>
+          <Text style={styles.bottomButtonText}>Next</Text>
         </TouchableOpacity>}
       </View>
     </View>
@@ -19,9 +19,9 @@ export default function ViewWithBottomButton({ children, onNext, buttonHidden }:
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
+    flex: 1,
   },
   bottomButtonContainer: {
     flexDirection: "row",
@@ -32,8 +32,14 @@ const styles = StyleSheet.create({
   bottomButton: {
     flex: 1,
     width: "100%",
-    backgroundColor: "black",
+    backgroundColor: Colors.light.button.background,
     padding: 10,
     borderRadius: 25,
+  },
+  bottomButtonText: {
+    color: Colors.light.button.text,
+    textAlign: "center",
+    fontSize: Typography.button.fontSize,
+    fontWeight: 700,
   },
 });

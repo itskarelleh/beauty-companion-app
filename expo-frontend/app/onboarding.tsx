@@ -1,10 +1,13 @@
-import { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { Picker } from "@react-native-picker/picker";
 import ViewWithBottomButton from "../components/views/ViewWithBottomButton";
 import NineBySixteenCamera from "@/components/NineBySixteenCamera";
 import axios from "axios";
+import { Colors } from "@/constants/Colors";
+import TextField from "@/components/TextField";
+import { ColorSelection, SkinTypeSelection, styles } from "@/components/onboarding";
 
 export default function Onboarding() {
     const [ newUser, setNewUser ] = useState({
@@ -17,12 +20,40 @@ export default function Onboarding() {
     const [ images, setImages ] = useState<string[]>([]);
     const [currentStep, setCurrentStep] = useState(0);
     const [analysisResults, setAnalysisResults] = useState<any[]>([]);
-    
+    const [ analysisIsLoading, setAnalysisIsLoading ] = useState(false);
+    const [isStepValid, setIsStepValid] = useState(false);
+
     const handleInputChange = (field: string, value: string) => {
         setNewUser(prevState => ({
             ...prevState,
             [field]: value
         }));
+    };
+
+    useEffect(() => {
+        validateCurrentStep();
+    }, [newUser, images, currentStep]);
+
+    const validateCurrentStep = () => {
+        switch (currentStep) {
+            case 1:
+                setIsStepValid(newUser.name.trim().length > 0);
+                break;
+            case 2:
+                setIsStepValid(/^\d+$/.test(newUser.age));
+                break;
+            case 3:
+                setIsStepValid(newUser.skinTone.trim().length > 0);
+                break;
+            case 4:
+                setIsStepValid(newUser.skinType.trim().length > 0);
+                break;
+            case 6:
+                setIsStepValid(images.length > 0);
+                break;
+            default:
+                setIsStepValid(true);
+        }
     };
 
     const [ steps, setSteps ] = useState([
@@ -32,11 +63,16 @@ export default function Onboarding() {
         </View>,
         <View>
             <Text>What's your name?</Text>
-            <TextInput onChangeText={(text) => handleInputChange('name', text)} />
+            <TextField
+                placeholder="Name"
+                defaultValue={newUser.name}
+                onChangeText={(text) => handleInputChange('name', text)}
+            />
         </View>,
         <View>
             <Text>What's your age?</Text>
-            <TextInput
+            <TextField
+                placeholder="Age"
                 defaultValue={newUser.age}
                 keyboardType="numeric"
                 onChangeText={(text) => handleInputChange('age', text)}
@@ -44,10 +80,10 @@ export default function Onboarding() {
         </View>,
         <ColorSelection onChange={(value) => handleInputChange('skinTone', value)} />,
         <SkinTypeSelection onChange={(value) => handleInputChange('skinType', value)} />,
-        <View>
+        <View >
             <Text>Now that we know a bit about you, let's get started with a personalized skincare routine! Let's start with a skin analysis.</Text>
         </View>,
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", width: "100%", padding: 28 }}>
+        <View style={{ justifyContent: "center", alignItems: "center", width: "100%", padding: 28 }}>
             <View style={styles.cameraMessage}>
                 <Text>Take a photo of your face</Text>
             </View>
@@ -61,9 +97,14 @@ export default function Onboarding() {
             </View>
         </View>,
         <View>
-            <Text>Results</Text>
-            <Text>Here are your results based on the photos you've taken.</Text>
-            {/* <Text>{JSON.stringify(analysisResults)}</Text> */}
+            {analysisIsLoading && <Text>Loading...</Text>}
+            {!analysisIsLoading && <>
+                <Text>Results</Text>
+                <Text>Here are your results based on the photos you've taken.</Text>
+                <Text>
+                    {analysisResults}
+                </Text>
+            </>}
         </View>,
         <View>
             <Text>Great! We've got your skin analysis. Let's save your profile and get started.</Text>
@@ -118,9 +159,11 @@ export default function Onboarding() {
         variables: { userProfile: newUser, images: images }
       });
 
-      console.log(response);
+      setAnalysisIsLoading(true);
 
-      setAnalysisResults(response.data.data.generateSkinAnalysis);
+      setAnalysisResults(response.data.data.generateSkinAnalysis.content[0].text);
+
+      setAnalysisIsLoading(false);
     } catch (error) {
       console.error('Error during analysis:', error);
         console.log("User profile:", newUser);
@@ -131,61 +174,8 @@ export default function Onboarding() {
     const analysisReady = (currentStep === steps.length - 3) && (images.length === 3);
 
     return (
-        <ViewWithBottomButton buttonHidden={analysisReady} onNext={onNext}>
+        <ViewWithBottomButton buttonHidden={analysisReady || !isStepValid} onNext={onNext}>
             {steps[currentStep]}
         </ViewWithBottomButton>
     );
 }
-
-const ColorSelection = ({ onChange }: { onChange: (value: string) => void }) => {
-    return (
-        <View>
-            <Text>What's your skin tone?</Text>
-            <Picker onValueChange={(value: string) => onChange(value)}>
-                <Picker.Item label="light" value="light" />
-                <Picker.Item label="medium" value="medium" />
-                <Picker.Item label="dark" value="dark" />
-            </Picker>
-        </View>
-    )
-}
-
-const SkinTypeSelection = ({ onChange }: { onChange: (value: string) => void }) => {
-    return (
-        <View>
-            <Text>What's your skin type?</Text>
-            <Picker onValueChange={(value: string) => onChange(value)}>
-                <Picker.Item label="oily" value="oily" />
-                <Picker.Item label="dry" value="dry" />
-                <Picker.Item label="combination" value="combination" />
-                <Picker.Item label="normal" value="normal" />
-            </Picker>
-        </View>
-    )
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  bottomButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  bottomButton: {
-    flex: 1,
-    width: "100%",
-    backgroundColor: "black",
-  },
-  cameraMessage: {
-    paddingBottom: 10,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    color: "white",
-  }
-});

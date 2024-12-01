@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { SessionProvider } from '@/libs/SessionProvider';
 import { View, Dimensions, StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 // import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -50,6 +51,8 @@ const styles = StyleSheet.create({
   phoneContainer: {
     width: 414,
     alignSelf: 'center',
+    flex: 1,
+    backgroundColor: Colors.light.background,
   },
   fullWidthContainer: {
     flex: 1,
