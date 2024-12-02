@@ -4,93 +4,14 @@ import { Controller } from "react-hook-form";
 import { SkinType } from "@/app/onboarding";
 import React, { useState } from 'react';
 import { Typography } from "@/constants/Typography";
+import { AgeField } from "./AgeField";
+import { NameField } from "./NameField";
+import { TakePhoto } from "./TakePhoto";
+import { SkinColorSelection } from "./SkinColorSelection";
+import { SkinTypeSelection } from "./SkinTypeSelection";
 
-export const SkinColorSelection = ({ control }: { control: any }) => {
-    const theme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
-    const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
-    const generateSwatches = () => {
-        const swatches = [];
-        for (let i = 0; i < 25; i++) {
-
-            const hue = 30; // A hue around 30 is often used for skin tones
-            const saturation = 30 + i * 1.5; // Slightly increase saturation
-            const lightness = 20 + i * 3; // Start from darker tones and increase lightness
-            const colorValue = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-            swatches.push(
-                <Controller
-                    key={i}
-                    control={control}
-                    name={`skinTone`}
-                    render={({ field: { onChange, onBlur } }) => (
-                        <TouchableOpacity
-                            style={[
-                                styles(theme).swatch,
-                                { backgroundColor: colorValue },
-                                selectedColor === colorValue && styles(theme).selectedSwatch
-                            ]}
-                            onPress={() => {
-                                setSelectedColor(colorValue);
-                                onChange(selectedColor);
-                            }}
-                            onBlur={onBlur}
-                        />
-                    )}
-                />
-            );
-        }
-        return swatches;
-    };
-
-    return (
-        <View style={{ paddingTop: 52 }}>
-            <Text style={Typography.h2}>What's your skin tone?</Text>
-            <View style={styles(theme).swatchContainer}>
-                {generateSwatches()}
-            </View>
-        </View>
-    );
-}
-
-export const SkinTypeSelection = ({ control }: { control: any }) => {
-
-    const theme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
-    const [selectedType, setSelectedType] = useState<string | null>(null);
-    
-    const options = [
-        { label: "oily", value: SkinType.OILY, image: require('@/assets/images/oily.jpg') },
-        { label: "dry", value: SkinType.DRY, image: require('@/assets/images/dry.jpg') },
-        { label: "normal/combination", value: SkinType.NORMAL_COMBINATION, image: require('@/assets/images/normal-combination.jpg') },
-        { label: "unsure", value: SkinType.UNSURE, image: require('@/assets/images/unsure.jpg') },
-    ];
-
-    return (
-        <View>
-            <Text>What's your skin type?</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around' }}>
-                {options.map(option => (
-                    <Controller 
-                        control={control}
-                        name={"skinType"}
-                        render={({field : { onChange, value, onBlur } }) => (
-                            <TouchableOpacity style={styles(theme).imageContainer} onBlur={onBlur} key={option.value} 
-                            onPress={() => {
-                                setSelectedType(option.value);
-                                  onChange(option.value);
-                            }}>
-                          <View style={styles(theme).imageContainer}>
-                              <Image source={option.image} style={styles(theme).image} />
-                          </View>
-                          <Text style={styles(theme).label}>{option.label}</Text>
-                        </TouchableOpacity>
-                    )} />
-                ))}
-            </View>
-        </View>
-    );
-}
-
-export const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
+export const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
     container: {
       flex: 1
     },
@@ -147,3 +68,5 @@ export const styles = (theme: typeof Colors.light | typeof Colors.dark) => Style
         borderColor: 'lightblue',
     },
   });
+
+  export { AgeField, NameField, TakePhoto, SkinColorSelection, SkinTypeSelection, onboardingStyles };

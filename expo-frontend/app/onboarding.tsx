@@ -1,17 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import { View, Text, useColorScheme } from "react-native";
-import { Image } from "expo-image";
 import ViewWithBottomButton from "../components/views/ViewWithBottomButton";
-import NineBySixteenCamera from "@/components/NineBySixteenCamera";
 import axios from "axios";
-import { TextField } from "@/components/TextField";
-import { SkinColorSelection, SkinTypeSelection, styles } from "@/components/onboarding";
+import { SkinColorSelection, SkinTypeSelection, AgeField, NameField, TakePhoto } from "@/components/onboarding";
 import SignUpForm from "@/components/views/SignUpForm";
 import { supabase } from "@/libs/supabase";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
-
+import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter } from "expo-router";
 
 type NewUser = {
     name: string;
@@ -28,31 +25,56 @@ export enum SkinType {
 }
 
 export default function Onboarding() {
-    const { control, handleSubmit, watch, formState: { errors } } = useForm<NewUser>();
+    const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<NewUser>();
+    const router = useRouter();
+    
+    // Combine related states into a single object
+    const [state, setState] = useState({
+        images: [] as string[],
+        currentStep: 0,
+        analysisResults: [] as any[],
+        analysisIsLoading: false,
+        isStepValid: false,
+        imageUrls: [] as string[],
+    });
 
-    const [ images, setImages ] = useState<string[]>([]);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [analysisResults, setAnalysisResults] = useState<any[]>([]);
-    const [ analysisIsLoading, setAnalysisIsLoading ] = useState(false);
-    const [isStepValid, setIsStepValid] = useState(false);
-    const [imageUrls, setImageUrls] = useState<string[]>([]);
     const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
 
+    // Example of how to update a specific state
+    const setImages = (images: string[]) => setState(prev => ({ ...prev, images }));
+    const setCurrentStep = (currentStep: number) => setState(prev => ({ ...prev, currentStep }));
+    const setAnalysisResults = (analysisResults: any[]) => setState(prev => ({ ...prev, analysisResults }));
+    const setAnalysisIsLoading = (analysisIsLoading: boolean) => setState(prev => ({ ...prev, analysisIsLoading }));
+    const setIsStepValid = (isStepValid: boolean) => setState(prev => ({ ...prev, isStepValid }));
+    const setImageUrls = (imageUrls: string[]) => setState(prev => ({ ...prev, imageUrls }));
 
     const skipToSignUp = () => {
         setCurrentStep(steps.length - 1);
     }
 
-    const onSubmit: SubmitHandler<NewUser> = (data) => {
+    const onSubmit: SubmitHandler<any> = (data) => {
         console.log(data);
+
+        //pass data to signup-email
+        router.push({ pathname: '/signup-email', params: { newUser: data }});
     }
 
     useEffect(() => {
         validateCurrentStep();
-    }, [watch(), images, currentStep]);
+    }, [watch(), state.images, state.currentStep]);
+
+    useEffect(() => {
+        const subscription = watch((value, { name }) => {
+            if (name === 'name' && value.name) {
+                setValue('age', '');
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch, setValue]);
 
     const validateCurrentStep = () => {
-        switch (currentStep) {
+        switch (state.currentStep) {
             case 1:
                 setIsStepValid((watch('name') || '').length > 0);
                 break;
@@ -66,7 +88,7 @@ export default function Onboarding() {
                 setIsStepValid((watch('skinType') || '').length > 0);
                 break;
             case 6:
-                setIsStepValid(images.length > 0);
+                setIsStepValid(state.images.length > 0);
                 break;
             default:
                 setIsStepValid(true);
@@ -80,71 +102,38 @@ export default function Onboarding() {
             <Text style={Typography.h2}>Welcome to Visage AI!</Text>
             <Text style={Typography.body}>To get started, tell me a bit about yourself.</Text>
         </View>,
-        <View style={{ width: '100%', padding: 16, gap: 8 }}>
-            <Text style={Typography.h3}>What's your first name?</Text>
-           <Controller control={control} render={({field : { onChange, value, onBlur } }) => (    
-             <TextField
-                onBlur={onBlur}
-                onChange={onChange}
-                placeholder="Name"
-                defaultValue={value}
-            />
-           )} name="name" />
-        </View>,
-        <View style={{ width: '100%', padding: 16, gap: 8 }}>
-            <Text style={Typography.h3}>Nice to meet you, {watch('name')}! What's your age?</Text>
-            <Controller control={control} render={({field : { onChange, value, onBlur } }) => (    
-             <TextField
-                onBlur={onBlur}
-                onChange={onChange}
-                placeholder="Age"
-                defaultValue={value}
-                keyboardType="numeric"
-            />
-           )} name="age" />
-        </View>,
+        <NameField control={control} watch={watch} />,
+        <AgeField control={control} watch={watch} />,
         <SkinColorSelection control={control} />,
         <SkinTypeSelection control={control} />,
         <View >
             <Text>Now that we know a bit about you, let's get started with a personalized skincare routine! Let's start with a skin analysis.</Text>
         </View>,
-        <View style={{ justifyContent: "center", alignItems: "center", width: "100%", padding: 28 }}>
-            <View style={styles(themeColorScheme).cameraMessage}>
-                <Text>Take a photo of your face</Text>
-            </View>
-            <NineBySixteenCamera setImages={setImages} />
-            <View>
-                {images.map((image, index) => (
-                    <Image source={{ uri: image }} key={index} />
-                ))}
-            </View>
-        </View>,
+        <TakePhoto control={control} watch={watch} images={state.images} setImages={setImages} />,
         <View>
-            {analysisIsLoading && <Text>Loading...</Text>}
-            {!analysisIsLoading && <>
+            {state.analysisIsLoading && <Text>Loading...</Text>}
+            {!state.analysisIsLoading && <>
                 <Text>Results</Text>
                 <Text>Here are your results based on the photos you've taken.</Text>
                 <Text>
-                    {analysisResults}
+                    {state.analysisResults}
                 </Text>
             </>}
         </View>,
         <View>
             <Text>Great! We've got your skin analysis. Let's save your profile and get started.</Text>
         </View>,
-        <View>
-            <SignUpForm newUser={watch()} />
-        </View>
+        <SignUpForm onSubmit={onSubmit} newUser={watch()} />
     ], [watch()]);
     
     const onNext = () => {
-        if (currentStep === steps.length - 1) {
+        if (state.currentStep === steps.length - 1) {
             onComplete();
-        } else if(currentStep === steps.length - 4) {
-            setCurrentStep(currentStep + 1);
+        } else if(state.currentStep === steps.length - 4) {
+            setCurrentStep(state.currentStep + 1);
             onAnalysisStart(watch());
         } else {
-            setCurrentStep(currentStep + 1);
+            setCurrentStep(state.currentStep + 1);
         }
     };
 
@@ -156,7 +145,7 @@ export default function Onboarding() {
         console.log("onAnalysisStart");
 
         // Upload all images to the Supabase bucket
-        await addImagesToSupabase(images, setImageUrls);
+        await addImagesToSupabase(state.images, setImageUrls);
 
         try {
             const response = await axios.post('http://localhost:8686/graphql', {
@@ -183,7 +172,7 @@ export default function Onboarding() {
                         }
                     }
                 `,
-                variables: { userProfile: newUser, images: imageUrls }
+                variables: { userProfile: newUser, images: state.imageUrls }
             });
 
             setAnalysisIsLoading(true);
@@ -193,20 +182,20 @@ export default function Onboarding() {
         } catch (error) {
             console.error('Error during analysis:', error);
             console.log("User profile:", newUser);
-            console.log("Images:", imageUrls);
+            console.log("Images:", state.imageUrls);
         }
     }
 
-    const analysisReady = (currentStep === steps.length - 3) && (imageUrls.length === 3);
+    const analysisReady = (state.currentStep === steps.length - 3) && (state.imageUrls.length === 3);
 
     return (
-        <ViewWithBottomButton buttonHidden={analysisReady || !isStepValid} onNext={onNext}>
-            {steps[currentStep]}
+        <ViewWithBottomButton buttonHidden={analysisReady || !state.isStepValid || state.currentStep === 9} onNext={onNext}>
+            {steps[state.currentStep]}
         </ViewWithBottomButton>
     );
 }
 
-const addImagesToSupabase = async (images: string[], setImageUrls: (urls: string[]) => void) => {
+const addImagesToSupabase = async (images: string[], setImageUrls: any) => {
     console.log("addImagesToSupabase", images);
 
     for (const image of images) {
@@ -219,18 +208,11 @@ const addImagesToSupabase = async (images: string[], setImageUrls: (urls: string
         if (error) {
             console.error('Error uploading image:', error);
         } else {
-            console.log('Image uploaded successfully:', data);
-
-            // Get the public URL of the uploaded image
-            const { data: { publicUrl }, error: urlError } = supabase.storage
+            const { data: { publicUrl }} = supabase.storage
                 .from('onboarding')
                 .getPublicUrl(data.path);   
 
-            if (urlError) {
-                console.error('Error getting public URL:', urlError);
-            } else {
-                setImageUrls(prevUrls => [...prevUrls, publicUrl]);
-            }
+            setImageUrls((prevUrls: string[]) => [...prevUrls, publicUrl]);
         }
     }
 }

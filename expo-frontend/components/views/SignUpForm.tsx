@@ -7,39 +7,26 @@ import ViewWithBottomButton from "@/components/views/ViewWithBottomButton";
 import { StyledButton } from "@/components/common/StyledButton";
 import { useRouter } from "expo-router";
 import { Typography } from "@/constants/Typography";
+import { useForm } from "react-hook-form";
 
-const getRandomGreeting = () => {
-    const greetings = [
-        'Hello\nBeautiful!',
-        'Hi there\nGorgeous!',
-        'Hey\nStunning!',
-        'Greetings\nRadiant One!',
-        'Welcome\nLovely!',
-        'Hi\nWonderful!',
-        'Hello\nAmazing!',
-        'Hey\nFabulous!',
-        'Greetings\nCharming!',
-        'Welcome\nMagnificent!'
-    ];
-    const randomIndex = Math.floor(Math.random() * greetings.length);
-    return greetings[randomIndex];
-};
+type SignUpFormProps = {
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+}
 
-export default function SignUpForm({ newUser }: { newUser: any }) {
+export default function SignUpForm({ onSubmit, newUser }: { onSubmit: any, newUser: any }) {
     const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
     const router = useRouter();
-    
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [isEmailPasswordForm, setIsEmailPasswordForm] = useState(false);
 
+    const { control, handleSubmit, watch, getValues } = useForm<SignUpFormProps>();
+    
     const handleSignUp = async (provider?: any) => {
-        console.log(email, password, confirmPassword);
+        console.log(getValues());
 
            try {
-            if(email && password) {
-                const data = await handleSignInWithEmailPassword();
+            if(watch('email') && watch('password')) {
+                const data = await handleSignUpWithEmailPassword();
 
                 if(data.error) {
                     console.log(data.error);
@@ -58,12 +45,12 @@ export default function SignUpForm({ newUser }: { newUser: any }) {
            }
     }
 
-    const handleSignInWithEmailPassword = async () => {
+    const handleSignUpWithEmailPassword = async () => {
         console.log('Email and password are valid');
     
         const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
+            email: watch('email') as string,
+            password: watch('password') as string
         });
 
         return { data, error };
@@ -80,22 +67,19 @@ export default function SignUpForm({ newUser }: { newUser: any }) {
     const handleNext = (type?: string) => {
         console.log('Next');
 
-        if(type === 'emailpassword-form') {
-            setIsEmailPasswordForm(true);
-        }
     }
 
     return (
-        <ViewWithBottomButton buttonHidden={!isEmailPasswordForm} onNext={() => handleNext()}>
+        <ViewWithBottomButton buttonHidden={!watch('email') && !watch('password')} onNext={() => handleNext()}>
             <View style={styles(themeColorScheme).container}>
                 <View style={styles(themeColorScheme).signUpContainer}>
-                    <Text style={styles(themeColorScheme).title}>Welcome, {newUser?.name}!</Text>
-                    <Text style={styles(themeColorScheme).subtitle}>Login to your account <br/>to continue</Text>
+                    <Text style={styles(themeColorScheme).title}>Welcome, <br/>{newUser?.name}</Text>
+                    <Text style={styles(themeColorScheme).subtitle}>Sign up to continue</Text>
                 </View>
 
                 <View style={styles(themeColorScheme).authOptionsContainer}>
                     <View style={styles(themeColorScheme).signInButtonContainer}>
-                        <StyledButton title="Login with email" onPress={() => router.push('/login-email')} />
+                        <StyledButton title="Sign up with email" onPress={() => onSubmit(newUser)} />
                     </View>
                     <View style={styles(themeColorScheme).or}>
                         <View style={styles(themeColorScheme).orLine} />

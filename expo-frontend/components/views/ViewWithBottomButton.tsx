@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     flex: 1,
     padding: 24,
-    paddingTop: 48
+    paddingTop: 64
   },
   bottomButtonContainer: {
     flexDirection: "row",

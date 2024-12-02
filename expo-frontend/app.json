@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "beauty-companion-expo",
-    "slug": "beauty-companion-expo",
+    "name": "Visage Vision AI",
+    "slug": "visage-vision-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,7 +14,7 @@
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
       },
-      "bundleIdentifier": "com.itskarelleh.beautycompanionexpo"
+      "bundleIdentifier": "com.itskarelleh.visagevisionai"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +25,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.itskarelleh.beautycompanionexpo"
+      "package": "com.itskarelleh.visagevisionai"
     },
     "web": {
       "bundler": "metro",
