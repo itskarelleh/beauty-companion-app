@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Controller } from "react-hook-form";
-import { SkinType } from "@/app/onboarding";
+import { Onboarding } from "./Onboarding";
 import React, { useState } from 'react';
 import { Typography } from "@/constants/Typography";
 import { AgeField } from "./AgeField";
@@ -11,7 +11,7 @@ import { SkinColorSelection } from "./SkinColorSelection";
 import { SkinTypeSelection } from "./SkinTypeSelection";
 
 
-export const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
+const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
     container: {
       flex: 1
     },
@@ -35,16 +35,6 @@ export const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark
       zIndex: 1000,
       color: theme?.button?.text,
     },
-    imageContainer: {
-      width: '100%',
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-    image: {
-      width: '100%',
-      borderWidth: 1,
-      borderColor: '#F1F1F1',
-    },
     label: {
       fontSize: 12,
       fontWeight: 'bold',
@@ -55,7 +45,6 @@ export const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        // maxWidth: 170,
     },
     swatch: {
         width: 50, // Adjust size as needed
@@ -65,8 +54,8 @@ export const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark
     },
     selectedSwatch: {
         borderWidth: 2,
-        borderColor: 'lightblue',
+        borderColor: Colors.light.border.selected,
     },
   });
 
-  export { AgeField, NameField, TakePhoto, SkinColorSelection, SkinTypeSelection, onboardingStyles };
+  export { AgeField, NameField, TakePhoto, SkinColorSelection, SkinTypeSelection, onboardingStyles, Onboarding };

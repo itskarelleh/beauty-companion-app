@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { useColorScheme } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,12 +31,12 @@ export default function RootLayout() {
     return null;
   }
 
+  const theme = useColorScheme()
   return (
-      <ThemeProvider value={DefaultTheme}>
-        <View style={isPhoneWidth ? styles.phoneContainer : styles.fullWidthContainer}>
-          <Stack screenOptions={{ headerTransparent: true, headerShadowVisible: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="index" options={{ headerShown: false }} />
+      <View style={isPhoneWidth ? styles.phoneContainer : styles.fullWidthContainer}>
+        <Stack screenOptions={{ headerTransparent: true, headerShadowVisible: false }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="onboarding" options={{ headerTitle: "" }} />
             <Stack.Screen name="login" options={{ headerTitle: "" }} />
             <Stack.Screen name="login-email" options={{ headerTitle: "" }} />
@@ -43,7 +44,6 @@ export default function RootLayout() {
           </Stack>
           <StatusBar style="auto" />
         </View>
-      </ThemeProvider>
   );
 }
 

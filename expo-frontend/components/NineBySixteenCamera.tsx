@@ -2,7 +2,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useEffect, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function NineBySixteenCamera({ setImages }: { setImages: (images: string[]) => void }) {
+export default function NineBySixteenCamera({ handleImages }: { handleImages: any }) {
   const [facing, setFacing] = useState<CameraType>('front');
   const [permission, requestPermission] = useCameraPermissions();
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
@@ -38,18 +38,15 @@ export default function NineBySixteenCamera({ setImages }: { setImages: (images:
     );
   }
 
-  // function toggleCameraFacing() {
-  //   setFacing(current => (current === 'back' ? 'front' : 'back'));
-  // }
-
   const handleTakePhoto = async () => {
     if (cameraRef.current) {
       try {
         const photo = await cameraRef.current?.takePictureAsync();
-        const photos = [];
 
-        photos.push(photo?.base64);
-        setImages(photos);
+        console.log("photo", photo);
+        if (photo?.base64) {
+          handleImages(photo);
+        }
       } catch (error) {
         console.error("Error taking photo:", error);
       }

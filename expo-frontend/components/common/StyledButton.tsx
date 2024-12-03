@@ -26,11 +26,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 12,
         borderRadius: 10,
+        height: 48,
+        justifyContent: "center",
+        alignItems: "center",
+        display: "flex",
     },
     text: {
         color: Colors.light.button.text,
         textAlign: "center",
         fontSize: Typography.button.fontSize,
         fontWeight: 700,
+        height: 24,
     }
 })

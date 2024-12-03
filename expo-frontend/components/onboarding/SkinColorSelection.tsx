@@ -41,12 +41,14 @@ export const SkinColorSelection = ({ control }: { control: any }) => {
                 />
             );
         }
+
         return swatches;
     };
 
     return (
         <View style={{ paddingTop: 52 }}>
             <Text style={Typography.h2}>What's your skin tone?</Text>
+            <Text style={Typography.body}>Select the color that best describes your skin.</Text>
             <View style={styles(theme).swatchContainer}>
                 {generateSwatches()}
             </View>

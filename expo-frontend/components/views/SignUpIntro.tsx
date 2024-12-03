@@ -15,7 +15,7 @@ type SignUpFormProps = {
     confirmPassword?: string;
 }
 
-export default function SignUpForm({ onSubmit, newUser }: { onSubmit: any, newUser: any }) {
+export default function SignUpIntro({ name }: { name: string }) {
     const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
     const router = useRouter();
 
@@ -41,7 +41,7 @@ export default function SignUpForm({ onSubmit, newUser }: { onSubmit: any, newUs
                 }
             }
            } catch (error) {
-            console.log(error);
+                console.log(error);
            }
     }
 

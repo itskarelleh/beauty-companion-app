@@ -20,10 +20,13 @@ export const Colors = {
       disabledBackground: '#CCCCCC',
       disabledText: '#808080'
     },
-    border: '#121212',
+    border: {
+      default: '#f1f1f1',
+      selected: 'lightblue'
+    }
   },
   dark: {
-    text: '#FFF8E7',
+    text: 'red',
     background: '#4A2C2A',
     tint: tintColorDark,
     icon: '#9BA1A6',
@@ -32,7 +35,13 @@ export const Colors = {
     button: {
       background: '#fff',
       text: '#151718',
+      disabledBackground: '#333333',
+      disabledText: '#666666'   
     },
-    border: '#121212',
+    border: {
+      default: '#121212',
+      selected: '#444444',
+      hover: '#555555'
+    }
   },
 };
