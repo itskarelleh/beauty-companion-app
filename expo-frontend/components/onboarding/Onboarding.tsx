@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { OnboardingProvider, useOnboarding } from "@/libs/OnboardingProvider";
 import axios from "axios";
 import ViewWithBottomButton from "@/components/views/ViewWithBottomButton";
+import * as FileSystem from 'expo-file-system';
 
 type NewUser = {
     name: string;
@@ -74,7 +75,8 @@ export function Onboarding() {
                 setState(prev => ({ ...prev, isStepValid: (watch('skinType') || '').length > 0 }));
                 break;
             case 6:
-                setState(prev => ({ ...prev, isStepValid: state.images.length > 0 }));
+
+                setState(prev => ({ ...prev, isStepValid: state.images.length >= 3 }));
                 break;
             default:
                 setState(prev => ({ ...prev, isStepValid: true }));
@@ -93,7 +95,7 @@ export function Onboarding() {
         <View >
             <Text>Now that we know a bit about you, let's get started with a personalized skincare routine! Let's start with a skin analysis.</Text>
         </View>,
-        <TakePhoto  />,
+        <TakePhoto />,
         <View>
             {state.analysisIsLoading && <Text>Loading...</Text>}
             {!state.analysisIsLoading && <>
@@ -190,7 +192,16 @@ export function Onboarding() {
     );
 }
 
-const addImagesToSupabase = async (images: string[]) => {
+// const addImagesToTempStorage = async (images: string[], userId: string) => {
+//     const imageUrls = [];
+
+//     //upload each image to supabase temp storage
+//     for (const image of images) {
+       
+//     }
+// }
+
+const addImagesToSupabase = async (images: string[], userId: string) => {
     const imageUrls = [];
 
     const SUPABASE_BUCKET_TEMP = 'onboarding';
@@ -200,7 +211,7 @@ const addImagesToSupabase = async (images: string[]) => {
 
         const { data, error } = await supabase.storage
             .from(SUPABASE_BUCKET_TEMP)
-            .upload(`${new Date().getTime()}`, image);
+            .upload(`/user/${userId}/${new Date().getTime()}`, image);
 
         console.log("image upload data", data);
 

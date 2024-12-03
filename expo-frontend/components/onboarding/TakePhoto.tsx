@@ -14,16 +14,30 @@ export function TakePhoto() {
         setState(prev => ({ ...prev, images: [...prev.images, image] }));
     }
 
+    console.log(state.images);
+
     return (
-        <View style={{ justifyContent: "center", alignItems: "center", width: "100%", padding: 28 }}>
+        <View style={{ 
+            justifyContent: "center", 
+            alignItems: "center", 
+            display: "flex", 
+            flexDirection: "column",
+            width: "100%", 
+            padding: 28 
+        }}>
             <View style={styles(theme).cameraMessage}>
                 <Text>Take a photo of your face</Text>
             </View>
             <NineBySixteenCamera handleImages={addImage} />
-            <View>
-                {state.images.map((image: any, index: any) => (
-                    <Image source={{ uri: image.uri }} key={index} />
-                ))}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', width: '100%', justifyContent: 'space-between', gap: 10 }}>
+                {state.images.map((image: any, index: any) => {
+                    console.log(`Image URI: ${image.uri}`);
+                    return (
+                        <View key={index} style={{ width: 90, height: 160, backgroundColor: 'lightgray' }}>
+                            <Image source={{ uri: image.uri }} style={{ width: '100%', height: '100%' }} />
+                        </View>
+                    );
+                })}
             </View>
         </View>
     )

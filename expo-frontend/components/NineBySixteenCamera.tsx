@@ -44,9 +44,8 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
         const photo = await cameraRef.current?.takePictureAsync();
 
         console.log("photo", photo);
-        if (photo?.base64) {
-          handleImages(photo);
-        }
+        handleImages(photo);
+        
       } catch (error) {
         console.error("Error taking photo:", error);
       }

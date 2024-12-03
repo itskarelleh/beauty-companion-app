@@ -18,7 +18,7 @@ export const OnboardingContext = createContext<OnboardingContextType | undefined
 
 export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     const [state, setState] = useState<OnboardingState>({
-        currentStep: 0,
+        currentStep: 6,
         images: [],
         analysisResults: [],
         analysisIsLoading: false,
