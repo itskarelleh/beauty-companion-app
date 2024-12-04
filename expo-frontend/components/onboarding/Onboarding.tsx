@@ -11,14 +11,13 @@ import { useRouter } from "expo-router";
 import { OnboardingProvider, useOnboarding } from "@/libs/OnboardingProvider";
 import axios from "axios";
 import ViewWithBottomButton from "@/components/views/ViewWithBottomButton";
-import * as FileSystem from 'expo-file-system';
-
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 type NewUser = {
     name: string;
     age: string;
     skinTone: string;
     skinType: string;
-    skinAnalysis: SkinAnalysis;
+    skinAnalysis?: SkinAnalysis;
 }
 
 type SkinAnalysis = {
@@ -27,12 +26,16 @@ type SkinAnalysis = {
 }
 
 export function Onboarding() {
-    const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<NewUser>();
+    const { 
+        control, 
+        handleSubmit, 
+        watch, 
+        setValue, 
+        formState: { errors } 
+    } = useForm<NewUser>();
     const router = useRouter();
-
     const { state, setState } = useOnboarding();    
-
-    const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
+    const theme= useColorScheme() === 'light' ? Colors.light : Colors.dark;
 
     const skipToSignUp = () => {
         setState(prev => ({ ...prev, currentStep: steps.length - 1 }));
@@ -75,7 +78,6 @@ export function Onboarding() {
                 setState(prev => ({ ...prev, isStepValid: (watch('skinType') || '').length > 0 }));
                 break;
             case 6:
-
                 setState(prev => ({ ...prev, isStepValid: state.images.length >= 3 }));
                 break;
             default:
@@ -116,9 +118,14 @@ export function Onboarding() {
     const onNext = () => {
         if (state.currentStep === steps.length - 1) {
             onComplete();
-        } else if(state.currentStep === steps.length - 4) {
+        } else if(state.currentStep === 6) {
             setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
-            onAnalysisStart(watch());
+            onAnalysisStart({
+                name: watch('name'),
+                age: watch('age'),
+                skinTone: watch('skinTone'),
+                skinType: watch('skinType')
+            });
         } else {
             setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
         }
@@ -131,10 +138,13 @@ export function Onboarding() {
     const onAnalysisStart = async (newUser: NewUser) => {
         console.log("onAnalysisStart");
 
-        // Upload all images to the Supabase bucket
-        const imageUrls = await addImagesToSupabase(state.images);
+        //update all images to file system for temporary storage
+        const imageUrls = await addImagesToWebStorage(state.images);
 
         setValue('skinAnalysis.images', imageUrls);
+
+        console.log("imageUrls", watch('skinAnalysis.images'));
+        console.log(typeof imageUrls);
 
         try {
             const response = await axios.post('http://localhost:8686/graphql', {
@@ -161,7 +171,7 @@ export function Onboarding() {
                         }
                     }
                 `,
-                variables: { userProfile: newUser, images: state.images }
+                variables: { userProfile: newUser, images: imageUrls }
             });
 
             setState(prev => ({ ...prev, analysisIsLoading: true }));
@@ -171,7 +181,7 @@ export function Onboarding() {
         } catch (error) {
             console.error('Error during analysis:', error);
             console.log("User profile:", newUser);
-            console.log("Images:", state.images);
+            console.log("Images:", watch('skinAnalysis.images'));
         }
     }
 
@@ -184,47 +194,35 @@ export function Onboarding() {
     };
 
     return (
-        <OnboardingProvider>
-            <ViewWithBottomButton buttonHidden={analysisReady || !state.isStepValid || state.currentStep === 9} onNext={onNext} onBack={onBack}>
-                {steps[state.currentStep]}
-            </ViewWithBottomButton>
-        </OnboardingProvider>
+        <ViewWithBottomButton buttonHidden={analysisReady || !state.isStepValid || state.currentStep === 9} onNext={onNext} onBack={onBack}>
+            {steps[state.currentStep]}
+        </ViewWithBottomButton>
     );
 }
 
-// const addImagesToTempStorage = async (images: string[], userId: string) => {
-//     const imageUrls = [];
+const resizeImage = async (imageUri: string) => {
+    const result = await manipulateAsync(
+        imageUri,
+        // [{ resize: { width: 1024 } }],
+        [{ resize: { width: 1024} }],
+        { compress: 1, format: SaveFormat.JPEG }
+    );
 
-//     //upload each image to supabase temp storage
-//     for (const image of images) {
-       
-//     }
-// }
+    console.log({"result is typeof": typeof result})
+    
+    return result;
+}
 
-const addImagesToSupabase = async (images: string[], userId: string) => {
-    const imageUrls = [];
-
-    const SUPABASE_BUCKET_TEMP = 'onboarding';
+const addImagesToWebStorage = async (images: any[]) => {
+    const resizedImages = [];
 
     for (const image of images) {
-        console.log("image", image);
-
-        const { data, error } = await supabase.storage
-            .from(SUPABASE_BUCKET_TEMP)
-            .upload(`/user/${userId}/${new Date().getTime()}`, image);
-
-        console.log("image upload data", data);
-
-        if (error) {
-            console.error('Error uploading image:', error);
-        } else {
-            const { data: { publicUrl }} = supabase.storage
-                .from(SUPABASE_BUCKET_TEMP)
-                .getPublicUrl(data.path);   
-
-            imageUrls.push(publicUrl);
-        }
+        const resizedImage = await resizeImage(image.uri);
+        resizedImages.push(resizedImage);
     }
+
+    // Extract URIs from the ImageResult objects
+    const imageUrls = resizedImages.map(image => image.uri.toString());
 
     return imageUrls;
 }

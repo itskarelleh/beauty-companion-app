@@ -19,6 +19,7 @@ class UserProfileInput {
   }
 }
 
+
 function generateSkinAnalysis(
   userProfile: UserProfileInput,
   images: string[]
@@ -30,7 +31,15 @@ function generateSkinAnalysis(
     new Message('user', 
       `[Image: ${images.join(', ')}] 
       \n Based on the images provided, and the user's profile, recommend skincare products that would be best for the user.
-      \n[User Profile: ${JSON.stringify(userProfile)}]`)
+      \n[User Profile: ${JSON.stringify(userProfile)}]
+      \nProduce recommendations based on this format:
+      \n[if (no images provided) { I apologize, but I don't see any images attached to your message. Without being able to view specific images, I can't make recommendations based on visual information. However, I can provide some general skincare advice based on your profile:}]
+      \nFor [user's name], a [user's age] with [user's skin type] and a [user's skin tone]:
+      \n
+      1. [product/ingredient/technique]: Short sentence
+      …: [product/ingredient/technique]: Short sentence
+      N. [product/ingredient/technique]: Short sentence
+      \nRemember, it's always best to introduce new products gradually and to patch test before full application. If you have specific skin concerns or if you can provide images in the future, I'd be happy to offer more tailored advice.`)
   ])
 
   const output = model.invoke(input)

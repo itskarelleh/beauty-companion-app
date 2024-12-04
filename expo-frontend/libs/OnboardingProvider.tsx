@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 type OnboardingState = {
     currentStep: number;
     images: any[];
-    analysisResults: any[];
+    analysisResults: any;
     analysisIsLoading: boolean;
     isStepValid: boolean;
 };
@@ -18,7 +18,7 @@ export const OnboardingContext = createContext<OnboardingContextType | undefined
 
 export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     const [state, setState] = useState<OnboardingState>({
-        currentStep: 6,
+        currentStep: 0,
         images: [],
         analysisResults: [],
         analysisIsLoading: false,

@@ -1,11 +1,16 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useEffect, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { onboardingStyles } from './onboarding';
+import { useOnboarding } from '@/libs/OnboardingProvider';
 
 export default function NineBySixteenCamera({ handleImages }: { handleImages: any }) {
+  
+  const { state } = useOnboarding();
   const [facing, setFacing] = useState<CameraType>('front');
   const [permission, requestPermission] = useCameraPermissions();
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
+  const [disabled, setDisabled] = useState(false);
   const cameraRef = useRef<Camera | null>(null);
 
   useEffect(() => {
@@ -43,14 +48,19 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
       try {
         const photo = await cameraRef.current?.takePictureAsync();
 
-        console.log("photo", photo);
         handleImages(photo);
-        
+
       } catch (error) {
         console.error("Error taking photo:", error);
       }
     }
   }
+
+  // useEffect(() => {
+  //   if (state.images?.length >= 3) {
+  //     setDisabled(true);
+  //   }
+  // }, [state.images?.length]);
 
   return (
     <View style={styles.container} id="camera-container">
@@ -62,7 +72,9 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
       >
         {hasMultipleCameras && (
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.shootButton} onPress={handleTakePhoto}>
+            <TouchableOpacity disabled={disabled}
+            style={[styles.shootButton, disabled && styles.disabled]} 
+            onPress={handleTakePhoto}>
               <Text style={styles.text}>Take Photo</Text>
             </TouchableOpacity>
             {/* <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
@@ -76,6 +88,7 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
 }
 
 const styles = StyleSheet.create({
+  ...onboardingStyles,
   container: {
     flex: 1,
     position: "relative",
@@ -114,5 +127,8 @@ const styles = StyleSheet.create({
     width: 100,
     alignSelf: 'flex-end',
     alignItems: 'center',
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });
