@@ -8,6 +8,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "platforms": ["android","ios", "web"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -29,7 +30,9 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "startUrl": ".",
+      "display": "standalone"
     },
     "plugins": [
       "expo-router",
