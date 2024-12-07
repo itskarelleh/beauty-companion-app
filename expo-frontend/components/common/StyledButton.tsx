@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/Colors"
 import { Typography } from "@/constants/Typography";
+import { useColorScheme } from "@/hooks/useColorScheme.web";
 import { TouchableOpacity, StyleSheet, Text } from "react-native"
 
 interface StyledButtonProps {
@@ -11,18 +12,21 @@ interface StyledButtonProps {
 }
 
 export const StyledButton = ({ title, onPress, disabled}: StyledButtonProps) => {
+
+    const theme = useColorScheme() === 'light' ? Colors.light : Colors.dark
+    
     return (
-        <TouchableOpacity disabled={disabled} style={styles.button} onPress={onPress}>
-            <Text style={styles.text}>{title}</Text>
+        <TouchableOpacity disabled={disabled} style={styles(theme).button} onPress={onPress}>
+            <Text style={styles(theme).text}>{title}</Text>
         </TouchableOpacity>
     )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme : typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
     button: {
         flex: 1,
         width: "100%",
-        backgroundColor: Colors.light.button.background,
+        backgroundColor: theme.button.background,
         paddingHorizontal: 10,
         paddingVertical: 12,
         borderRadius: 10,
@@ -32,7 +36,7 @@ const styles = StyleSheet.create({
         display: "flex",
     },
     text: {
-        color: Colors.light.button.text,
+        color: theme.button.text,
         textAlign: "center",
         fontSize: Typography.button.fontSize,
         fontWeight: 700,

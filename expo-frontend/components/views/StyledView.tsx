@@ -14,6 +14,7 @@ const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.c
       alignItems: "center",
       flex: 1,
       padding: 16,
-      backgroundColor: '#fff'
+      backgroundColor: theme.background,
+      color: theme.text
     }
 });

@@ -1,14 +1,22 @@
 import { Colors } from "@/constants/Colors";
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, useColorScheme } from "react-native";
 import { Typography } from "@/constants/Typography";
-export default function ViewWithBottomButton({ children, onNext, buttonHidden, buttonDisabled, buttonText }: { children: React.ReactNode, onNext: () => void, buttonHidden?: boolean, buttonDisabled  ?: boolean, buttonText?: string }) {
+import { createThemedStyles } from "@/libs/styles";
+export default function ViewWithBottomButton({ children, 
+  onNext, 
+  buttonHidden, 
+  buttonDisabled, 
+  buttonText }: { children: React.ReactNode, onNext: () => void, buttonHidden?: boolean, buttonDisabled  ?: boolean, buttonText?: string }) {
 
   return (
     <View style={styles.container}>
       {children}
       <SafeAreaView style={styles.bottomButtonContainer}>
-        {!buttonHidden && <TouchableOpacity style={[styles.bottomButton, buttonDisabled && styles.disabledButton]} onPress={onNext} disabled={buttonDisabled}>
+        {!buttonHidden && <TouchableOpacity 
+        style={[styles.bottomButton, buttonDisabled && styles.disabledButton]} 
+        onPress={onNext} 
+        disabled={buttonDisabled}>
           <Text style={styles.bottomButtonText}>{buttonText || 'Next'}</Text>
         </TouchableOpacity>}
       </SafeAreaView>
@@ -16,13 +24,13 @@ export default function ViewWithBottomButton({ children, onNext, buttonHidden, b
   );
 }
 
-const styles = StyleSheet.create({
+const styles = createThemedStyles((theme: typeof Colors.light | typeof Colors.dark ) => ({
   container: {
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "white",
     flex: 1,
     padding: 24,
+    backgroundColor: theme.background,
     paddingTop: 64
   },
   bottomButtonContainer: {
@@ -35,17 +43,17 @@ const styles = StyleSheet.create({
   bottomButton: {
     flex: 1,
     width: "100%",
-    backgroundColor: Colors.light.button.background,
+    backgroundColor: theme.button.background,
     padding: 10,
     borderRadius: 10,
   },
   bottomButtonText: {
-    color: Colors.light.button.text,
+    color: theme.button.text,
     textAlign: "center",
     fontSize: Typography.button.fontSize,
     fontWeight: 700,
   },
   disabledButton: {
-    backgroundColor: Colors.light.button.disabledBackground
+    backgroundColor: theme.button.disabledBackground
   }
-});
+}));

@@ -11,7 +11,9 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "ngrok": "ngrok http 8081",
-    "build": "npx expo export -p web"
+    "build": "npx expo export -p web",
+    "build:web": "expo export -p web && npx workbox-cli generateSW workbox-config.js",
+    "deploy": "netlify build && netlify deploy"
   },
   "jest": {
     "preset": "jest-expo"

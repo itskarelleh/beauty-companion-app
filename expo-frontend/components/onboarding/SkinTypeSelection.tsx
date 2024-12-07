@@ -1,11 +1,12 @@
 import { Controller } from "react-hook-form";
-import { TouchableOpacity, View, Text } from "react-native";
+import { TouchableOpacity, View, Text, Image } from "react-native";
 import { useColorScheme } from "react-native";
 import { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { onboardingStyles } from ".";
-import { Image } from 'expo-image';
 import { Typography } from "@/constants/Typography";
+import { StepContainer } from "./StepContainer";
+import { createThemedStyles } from "@/libs/styles";
 
 export enum SkinType {
     OILY = "oily",
@@ -14,54 +15,42 @@ export enum SkinType {
     UNSURE = "unsure"
 }
 
-export const SkinTypeSelection = ({ control }: { control: any }) => {
-
-    const theme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
-
-    // Debugging: Log the theme to ensure it's correct
-    console.log('Current theme:', theme);
-
-    // Ensure Colors are defined correctly
-    console.log('Selected border color:', theme.border?.selected);
-    console.log('Default border color:', theme.border.default);
-
+export const SkinTypeSelection = ({ control } : { control: any }) => {
+    
     const [selectedType, setSelectedType] = useState<string | null>(null);
 
     const options = [
-        { label: "normal/combination", value: SkinType.NORMAL_COMBINATION, image: require('@/assets/images/normal-combination.jpg') },
-        { label: "oily", value: SkinType.OILY, image: require('@/assets/images/oily.jpg') },
-        { label: "dry", value: SkinType.DRY, image: require('@/assets/images/dry.jpg') },
-        { label: "unsure", value: SkinType.UNSURE, image: require('@/assets/images/unsure.jpg') },
+        { label: 'Normal/Combination', value: SkinType.NORMAL_COMBINATION, image: require('@/assets/images/normal-combination.jpg')},
+        { label: 'Oily', value: SkinType.OILY, image: require('@/assets/images/oily.jpg') },
+        { label: 'Dry', value: SkinType.DRY, image: require('@/assets/images/dry.jpg') },
+        { label: 'Unsure', value: SkinType.UNSURE, image: require('@/assets/images/unsure.jpg') },
     ];
 
     return (
-        <View style={{ flex: 1, width: '100%' }}>
-            <Text style={[Typography.h2, { marginBottom: 16}]}>What's your skin type?</Text>
-            <View>
-                {options.map(option => (
-                    <Controller 
-                        control={control}
-                        name={"skinType"}
-                        render={({field : { onChange, value, onBlur } }) => (
-                            <TouchableOpacity style={styles(theme).imageContainer} onBlur={onBlur} key={option.value} 
-                            onPress={() => {
-                                setSelectedType(option.value);
-                                  onChange(option.value);
-                            }}>
-                            <View style={[styles(theme).skinTypeImageContainer, selectedType === option.value && styles(theme).selectedBorder]}>
-                                <Image source={option.image} style={styles(theme).skinTypeImage} />
-                            </View>
-                            <Text style={[Typography.body, selectedType === option.value && styles(theme).selectedText]}>{option.label}</Text>
-                        </TouchableOpacity>
-                    )} />
-                ))}
-            </View>
-        </View>
+        <StepContainer heading="What's your skin type?">
+            {options.map(option => (
+                <Controller 
+                    control={control}
+                    name={"skinType"}
+                    render={({field : { onChange, onBlur } }) => (
+                        <TouchableOpacity style={styles.imageContainer} onBlur={onBlur} key={option.value} 
+                        onPress={() => {
+                            setSelectedType(option.value);
+                                onChange(option.value);
+                        }}>
+                        <View style={[styles.skinTypeImageContainer, selectedType === option.value && styles.selectedBorder]}>
+                            <Image source={option.image} style={styles.skinTypeImage} />
+                        </View>
+                        <Text style={[Typography.body, ((selectedType === option.value) && styles.selectedText)]}>{option.label}</Text>
+                    </TouchableOpacity>
+                )} />
+            ))}
+        </StepContainer>
     );
 }
 
-const styles = (theme: any) => ({
-    ...onboardingStyles(theme),
+const styles = createThemedStyles((theme: typeof Colors.light | typeof Colors.dark) => ({
+    ...onboardingStyles,
     imageContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -89,10 +78,10 @@ const styles = (theme: any) => ({
         textAlign: 'center',
     },
     selectedText: {
-        fontWeight: 700
+        fontWeight:  Typography.h1.fontWeight
     },
     selectedBorder: {
         borderColor: theme.border.selected,
         borderWidth: 2
     }
-});
+}));

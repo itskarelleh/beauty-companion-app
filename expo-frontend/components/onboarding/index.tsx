@@ -1,17 +1,16 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { Controller } from "react-hook-form";
 import { Onboarding } from "./Onboarding";
-import React, { useState } from 'react';
 import { Typography } from "@/constants/Typography";
 import { AgeField } from "./AgeField";
 import { NameField } from "./NameField";
 import { TakePhoto } from "./TakePhoto";
 import { SkinColorSelection } from "./SkinColorSelection";
 import { SkinTypeSelection } from "./SkinTypeSelection";
+import { SkinAnalysisPrep } from "./SkinAnalysisPrep";
+import { OnboardingIntro } from "./OnboardingIntro";
+import { createThemedStyles } from "@/libs/styles";
 
-
-const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
+const onboardingStyles = createThemedStyles((theme: typeof Colors.light | typeof Colors.dark) => ({
     container: {
       flex: 1
     },
@@ -24,7 +23,7 @@ const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark) => St
     bottomButton: {
       flex: 1,
       width: "100%",
-      backgroundColor: theme?.button?.background,
+      backgroundColor: theme.button?.background,
     },
     cameraMessage: {
       paddingBottom: 10,
@@ -42,20 +41,31 @@ const onboardingStyles = (theme: typeof Colors.light | typeof Colors.dark) => St
     swatchContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        padding: 0,
+        margin: 0,
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
     },
     swatch: {
-        width: 50, // Adjust size as needed
-        height: 50, // Adjust size as needed
+        width: 45, // Adjust size as needed
+        height: 45, // Adjust size as needed
         margin: 10,
         borderRadius: 4,
     },
     selectedSwatch: {
         borderWidth: 2,
-        borderColor: Colors.light.border.selected,
+        borderColor: (theme).border.selected,
     },
-  });
+  }));
 
-  export { AgeField, NameField, TakePhoto, SkinColorSelection, SkinTypeSelection, onboardingStyles, Onboarding };
+  export {
+    OnboardingIntro,
+    AgeField, 
+    NameField, 
+    TakePhoto, 
+    SkinColorSelection, 
+    SkinTypeSelection, 
+    SkinAnalysisPrep,
+    onboardingStyles, 
+    Onboarding };

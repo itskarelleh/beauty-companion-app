@@ -8,6 +8,7 @@ import { StyledButton } from "@/components/common/StyledButton";
 import { useRouter } from "expo-router";
 import { Typography } from "@/constants/Typography";
 import { useForm } from "react-hook-form";
+import { useOnboarding } from "@/libs/OnboardingProvider";
 
 type SignUpFormProps = {
     email?: string;
@@ -20,6 +21,8 @@ export default function SignUpIntro({ name }: { name: string }) {
     const router = useRouter();
 
     const { control, handleSubmit, watch, getValues } = useForm<SignUpFormProps>();
+
+    const { state, setState } = useOnboarding();
     
     const handleSignUp = async (provider?: any) => {
         console.log(getValues());
@@ -66,20 +69,22 @@ export default function SignUpIntro({ name }: { name: string }) {
 
     const handleNext = (type?: string) => {
         console.log('Next');
-
+        setState(prev => ({
+            ...prev,
+            currentStep: prev.currentStep + 1
+        }));
     }
 
     return (
-        <ViewWithBottomButton buttonHidden={!watch('email') && !watch('password')} onNext={() => handleNext()}>
+        <ViewWithBottomButton buttonHidden={!watch('email') && !watch('password')} onNext={() => null}>
             <View style={styles(themeColorScheme).container}>
                 <View style={styles(themeColorScheme).signUpContainer}>
-                    <Text style={styles(themeColorScheme).title}>Welcome, <br/>{newUser?.name}</Text>
+                    <Text style={styles(themeColorScheme).title}>Welcome, <br/>{name}</Text>
                     <Text style={styles(themeColorScheme).subtitle}>Sign up to continue</Text>
                 </View>
-
                 <View style={styles(themeColorScheme).authOptionsContainer}>
                     <View style={styles(themeColorScheme).signInButtonContainer}>
-                        <StyledButton title="Sign up with email" onPress={() => onSubmit(newUser)} />
+                        <StyledButton title="Sign up with email" onPress={handleNext} />
                     </View>
                     <View style={styles(themeColorScheme).or}>
                         <View style={styles(themeColorScheme).orLine} />

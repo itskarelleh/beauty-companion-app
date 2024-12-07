@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { createThemedStyles } from "@/libs/styles";
 import { KeyboardTypeOptions, 
   NativeSyntheticEvent,
   TextInputChangeEventData, 
@@ -18,9 +19,9 @@ interface TextFieldProps {
 }
 
 export function TextField({ placeholder, onChange, defaultValue, value, keyboardType, type, onBlur } : TextFieldProps) {
-  const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
+  
   return (
-    <TextInput style={[styles(themeColorScheme).textField]} 
+    <TextInput style={[styles.textField]} 
     placeholder={placeholder} 
     onChange={onChange} 
     defaultValue={defaultValue} 
@@ -31,7 +32,7 @@ export function TextField({ placeholder, onChange, defaultValue, value, keyboard
   );
 }
 
-const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
+const styles = createThemedStyles((theme: typeof Colors.light | typeof Colors.dark) =>({
   textField: {
     width: "100%",
     borderWidth: 2,
@@ -39,4 +40,4 @@ const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.c
     borderRadius: 8,
     borderColor: theme.border
   },
-});
+}));

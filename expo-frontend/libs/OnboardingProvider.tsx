@@ -1,20 +1,23 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 type OnboardingState = {
     currentStep: number;
-    images: any[];
+    images: File[];
     analysisResults: any;
     analysisIsLoading: boolean;
     isStepValid: boolean;
+    analysisReady: boolean;
+    buttonText?: string;
 };
 
 type OnboardingContextType = {
     state: OnboardingState;
     setState: React.Dispatch<React.SetStateAction<OnboardingState>>;
     handleBackButtonPress: () => void;
+    TAKE_PHOTO_STEP_INDEX: number;
 };
 
-export const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+export const OnboardingContext = createContext<OnboardingContextType | undefined >(undefined);
 
 export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     const [state, setState] = useState<OnboardingState>({
@@ -22,15 +25,29 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
         images: [],
         analysisResults: [],
         analysisIsLoading: false,
-        isStepValid: false
+        isStepValid: false,
+        analysisReady: false,
+        buttonText: 'Next'
     });
+
+
+    const TAKE_PHOTO_STEP_INDEX : number = 6;
+
+    useEffect(() => {
+        console.log("Images updated:", state.images.length)
+        setState(prev => ({ ...prev, analysisReady: prev.images.length === 3 }));
+    }, [state.images]);
+
+    useEffect(() => {
+        console.log("Analysis Ready:", state.analysisReady);
+    }, [state.analysisReady]);
 
     const handleBackButtonPress = () => {
         setState(prevState => ({ ...prevState, currentStep: prevState.currentStep - 1 }));
     };
 
     return (
-        <OnboardingContext.Provider value={{ state, setState, handleBackButtonPress }}>
+        <OnboardingContext.Provider value={{ state, setState, handleBackButtonPress, TAKE_PHOTO_STEP_INDEX }}>
             {children}
         </OnboardingContext.Provider>
     );

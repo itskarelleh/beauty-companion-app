@@ -5,14 +5,14 @@ import { View , StyleSheet, Text} from "react-native"
 import { Typography } from "@/constants/Typography";
 import { supabase } from "@/libs/supabase";
 import { useRouter } from "expo-router";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, Form, useForm } from "react-hook-form";
 
 interface SignUpFormProps {
     email: string;
     password: string;
 }
 
-export default function SignupEmailForm({ onSubmit, newUser }: { onSubmit: any, newUser: any }) {
+export default function SignupEmailForm({ newUser }: {  newUser: any }) {
 
     const { control, handleSubmit, watch } = useForm<SignUpFormProps>();
     const [ error, setError ] = useState('');
@@ -42,8 +42,6 @@ export default function SignupEmailForm({ onSubmit, newUser }: { onSubmit: any, 
                 content: newUser.analysis
             });
         }
-
-        //save user skin analysis to supabase
 
         //redirect to home
         router.push('/home');
@@ -79,7 +77,6 @@ export default function SignupEmailForm({ onSubmit, newUser }: { onSubmit: any, 
         if (password.length < 8) {
             messages.push('Password must be at least 8 characters long.');
         }
-        // Add more validation rules as needed
 
         setValidationMessages(messages);
     };
@@ -92,10 +89,9 @@ export default function SignupEmailForm({ onSubmit, newUser }: { onSubmit: any, 
                 if (validationMessages.length === 0) {
                     await handleLogin();
                 }
-            }} 
-            buttonText="Login"
+            }}
         >  
-            <View style={styles.parentContainer}>
+            <Form style={styles.parentContainer}>
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>Sign Up</Text>
                 </View>
@@ -113,7 +109,7 @@ export default function SignupEmailForm({ onSubmit, newUser }: { onSubmit: any, 
                         <Text key={index} style={styles.error}>{message}</Text>
                     ))}
                 </View>
-            </View>
+            </Form>
         </ViewWithBottomButton>
     )
 }

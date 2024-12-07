@@ -3,13 +3,25 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
+interface ColorPalette {
+  primary: string;
+  secondary: string;
+  background: string;
+}
+
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+export const palette : ColorPalette = {
+  primary: '#292727',
+  secondary: 'FFFAF6',
+  background: '#FFF'
+} as const;
+
 export const Colors = {
   light: {
-    text: '#292727',
-    background: '#FFF8E7',
+    text: palette.primary,
+    background: palette.background,
     tint: tintColorLight,
     icon: '#292727',
     tabIconDefault: '#292727',
@@ -26,15 +38,15 @@ export const Colors = {
     }
   },
   dark: {
-    text: 'red',
-    background: '#4A2C2A',
+    text: palette.secondary,
+    background: '#191717',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: palette.primary,
+    tabIconDefault: palette.secondary,
     tabIconSelected: tintColorDark,
     button: {
-      background: '#fff',
-      text: '#151718',
+      background: palette.primary,
+      text: palette.secondary,
       disabledBackground: '#333333',
       disabledText: '#666666'   
     },
@@ -44,4 +56,4 @@ export const Colors = {
       hover: '#555555'
     }
   },
-};
+} as const;

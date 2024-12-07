@@ -3,6 +3,26 @@ import { useState, useEffect, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { onboardingStyles } from './onboarding';
 import { useOnboarding } from '@/libs/OnboardingProvider';
+import { StyledButton } from './common/StyledButton';
+import { Image } from 'expo-image'
+
+function convertBase64ToFile(base64: string, fileName: string, mimeType: string): File {
+  const byteCharacters = atob(base64.split(',')[1]);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: mimeType });
+  return new File([blob], fileName, { type: mimeType });
+}
+
+function randomFileName(base64: string): string {
+  const timestamp = Date.now();
+  const randomNum = Math.floor(Math.random() * 10000);
+  const extension = base64.split(';')[0].split('/')[1]; // Extracts the file extension from the base64 string
+  return `image_${timestamp}_${randomNum}.${extension}`;
+}
 
 export default function NineBySixteenCamera({ handleImages }: { handleImages: any }) {
   
@@ -38,7 +58,7 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <StyledButton onPress={requestPermission} title="grant permission" />
       </View>
     );
   }
@@ -48,19 +68,19 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
       try {
         const photo = await cameraRef.current?.takePictureAsync();
 
-        handleImages(photo);
+        const file : File = convertBase64ToFile(
+          photo.base64, 
+          randomFileName(photo.base64), 
+          'image/jpeg');
+
+        console.log(file)
+        handleImages(file);
 
       } catch (error) {
         console.error("Error taking photo:", error);
       }
     }
   }
-
-  // useEffect(() => {
-  //   if (state.images?.length >= 3) {
-  //     setDisabled(true);
-  //   }
-  // }, [state.images?.length]);
 
   return (
     <View style={styles.container} id="camera-container">
@@ -75,7 +95,7 @@ export default function NineBySixteenCamera({ handleImages }: { handleImages: an
             <TouchableOpacity disabled={disabled}
             style={[styles.shootButton, disabled && styles.disabled]} 
             onPress={handleTakePhoto}>
-              <Text style={styles.text}>Take Photo</Text>
+              <Image style={styles.shootButtonInner} source={require('@/assets/images/camera-button.svg')} />
             </TouchableOpacity>
             {/* <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Flip Camera</Text>
@@ -101,17 +121,22 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
     width: '100%',
+    position: 'relative',
   },
   buttonContainer: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'transparent',
-    margin: 64,
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    // padding: 10
   },
   button: {
     flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   text: {
     fontSize: 24,
@@ -119,14 +144,16 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   aspectRatio: {
-    aspectRatio: 9 / 16,
+    aspectRatio: 1 / 1
   },
   shootButton: {
     flex: 1,
-    height: 100,
-    width: 100,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
+    height: 70,
+    width: 70,
+  },
+  shootButtonInner: {
+    width: 50,
+    height: 50,
   },
   disabled: {
     opacity: 0.5,

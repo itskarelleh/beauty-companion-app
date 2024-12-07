@@ -1,17 +1,28 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, useColorScheme } from "react-native";
-import { SkinColorSelection, SkinTypeSelection, AgeField, NameField, TakePhoto } from "@/components/onboarding";
+import React, { useEffect, useMemo, useState } from "react";
+import { View, useColorScheme } from "react-native";
+import { 
+    OnboardingIntro,
+    SkinColorSelection, 
+    SkinTypeSelection, 
+    AgeField, 
+    NameField, 
+    TakePhoto, 
+    SkinAnalysisPrep 
+} from "@/components/onboarding";
+import { StyledText as Text } from '@/components/common/StyledText'
 import SignUpIntro from "@/components/views/SignUpIntro";
 import SignUpEmailForm from "@/components/views/SignUpEmailForm";
-import { supabase } from "@/libs/supabase";
-import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "expo-router";
-import { OnboardingProvider, useOnboarding } from "@/libs/OnboardingProvider";
+import { useOnboarding } from "@/libs/OnboardingProvider";
 import axios from "axios";
 import ViewWithBottomButton from "@/components/views/ViewWithBottomButton";
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { supabase } from "@/libs/supabase";
+import { StepContainer } from "./StepContainer";
+import { createThemedStyles } from "@/libs/styles";
+
+// Type definitions for user data and skin analysis results
 type NewUser = {
     name: string;
     age: string;
@@ -26,6 +37,11 @@ type SkinAnalysis = {
 }
 
 export function Onboarding() {
+
+    // URL for the GraphQL endpoint
+    const url : string = process.env.EXPO_PUBLIC_MODUS_GRAPHQL_ENDPOINT || '';
+
+    // Form handling using react-hook-form
     const { 
         control, 
         handleSubmit, 
@@ -33,25 +49,28 @@ export function Onboarding() {
         setValue, 
         formState: { errors } 
     } = useForm<NewUser>();
-    const router = useRouter();
-    const { state, setState } = useOnboarding();    
-    const theme= useColorScheme() === 'light' ? Colors.light : Colors.dark;
 
+    // Router for navigation
+    const router = useRouter();
+
+    // Onboarding state management
+    const { state, setState, TAKE_PHOTO_STEP_INDEX } = useOnboarding();    
+
+    // Determine theme based on color scheme
+    const theme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
+
+
+    // Function to skip to the sign-up step
     const skipToSignUp = () => {
         setState(prev => ({ ...prev, currentStep: steps.length - 1 }));
     }
 
-    const onSubmit: SubmitHandler<any> = (data) => {
-        console.log(data);
-
-        //pass data to signup-email
-        router.push({ pathname: '/signup-email', params: { newUser: data }});
-    }
-
+    // Effect to validate the current step whenever images or current step changes
     useEffect(() => {
         validateCurrentStep();
     }, [state.images, state.currentStep]);
 
+    // Effect to watch form changes and validate steps
     useEffect(() => {
         const subscription = watch((value, { name }) => {
             if (name === 'name' && value.name) {
@@ -63,6 +82,7 @@ export function Onboarding() {
         return () => subscription.unsubscribe();
     }, [state.images, state.currentStep]);
 
+    // Function to validate the current step based on user input
     const validateCurrentStep = () => {
         switch (state.currentStep) {
             case 1:
@@ -72,53 +92,57 @@ export function Onboarding() {
                 setState(prev => ({ ...prev, isStepValid: /^\d+$/.test(watch('age') || '') }));
                 break;
             case 3:
-                setState(prev => ({ ...prev, isStepValid: (watch('skinTone') || '').length > 0 }));
+                const skinTone = watch('skinTone');
+                console.log('Current skinTone:', skinTone);
+                setState(prev => ({ ...prev, isStepValid: (skinTone || '').length > 0 }));
                 break;
             case 4:
                 setState(prev => ({ ...prev, isStepValid: (watch('skinType') || '').length > 0 }));
                 break;
-            case 6:
-                setState(prev => ({ ...prev, isStepValid: state.images.length >= 3 }));
+            case TAKE_PHOTO_STEP_INDEX:
+                setState(prev => ({ ...prev, isStepValid: state.images.length === 3 }));
+                break;
+            case TAKE_PHOTO_STEP_INDEX + 1:
+                setState(prev => ({ ...prev, isStepValid: state.analysisIsLoading === false }));
                 break;
             default:
                 setState(prev => ({ ...prev, isStepValid: true }));
         }
     };
 
+    // Steps in the onboarding process
     const steps = useMemo(() => [
-        <View style={{ width: '100%', padding: 16, gap: 8 }}>
-            <Text style={Typography.h2}>Welcome to Visage Pro AI!</Text>
-            <Text style={Typography.body}>To get started, tell me a bit about yourself.</Text>
-        </View>,
+        <OnboardingIntro />,//0
         <NameField control={control} watch={watch} />,
         <AgeField control={control} watch={watch} />,
         <SkinColorSelection control={control} />,
         <SkinTypeSelection control={control} />,
-        <View >
-            <Text>Now that we know a bit about you, let's get started with a personalized skincare routine! Let's start with a skin analysis.</Text>
-        </View>,
+        <SkinAnalysisPrep />,
         <TakePhoto />,
-        <View>
+        <StepContainer heading="Results">
             {state.analysisIsLoading && <Text>Loading...</Text>}
             {!state.analysisIsLoading && <>
-                <Text>Results</Text>
                 <Text>Here are your results based on the photos you've taken.</Text>
                 <Text>
                     {state.analysisResults}
                 </Text>
             </>}
-        </View>,
-        <View>
-            <Text>Great! We've got your skin analysis. Let's save your profile and get started.</Text>
-        </View>,
+        </StepContainer>,
+        <StepContainer heading="You're almost done!">
+            <Text>
+                To continue using Visage to track your skincare progress with our help, let's 
+                get you signed up and save your profile.
+            </Text>
+        </StepContainer>,
         <SignUpIntro name={watch('name')} />,
-        <SignUpEmailForm onSubmit={onSubmit} newUser={watch()} />
-    ], [watch()]);
+        <SignUpEmailForm newUser={watch()} />
+    ], []);
     
+    // Function to proceed to the next step or start analysis
     const onNext = () => {
         if (state.currentStep === steps.length - 1) {
             onComplete();
-        } else if(state.currentStep === 6) {
+        } else if(state.currentStep === TAKE_PHOTO_STEP_INDEX) {
             setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
             onAnalysisStart({
                 name: watch('name'),
@@ -131,23 +155,23 @@ export function Onboarding() {
         }
     };
 
+    // Placeholder function for when onboarding is complete
     const onComplete = () => {
         console.log("onComplete");
     }
 
+    // Function to start skin analysis by uploading images and making a request
     const onAnalysisStart = async (newUser: NewUser) => {
-        console.log("onAnalysisStart");
 
-        //update all images to file system for temporary storage
-        const imageUrls = await addImagesToWebStorage(state.images);
+        //set analysis loading to false
 
-        setValue('skinAnalysis.images', imageUrls);
+        // Update all images to file system for temporary storage
+        const imageDataArray : { path: string, data: Blob }[] = await addImagesToTemporaryBucket(state.images);
 
-        console.log("imageUrls", watch('skinAnalysis.images'));
-        console.log(typeof imageUrls);
+        setValue('skinAnalysis.images', imageDataArray.map(imageData => imageData.path));
 
         try {
-            const response = await axios.post('http://localhost:8686/graphql', {
+            const response = await axios.post(url, {
                 query: `
                     query($userProfile: UserProfileInput!, $images: [String!]!) {
                         generateSkinAnalysis(userProfile: $userProfile, images: $images) {
@@ -171,7 +195,7 @@ export function Onboarding() {
                         }
                     }
                 `,
-                variables: { userProfile: newUser, images: imageUrls }
+                variables: { userProfile: newUser, images: imageDataArray.map(imageData => imageData.path) }
             });
 
             setState(prev => ({ ...prev, analysisIsLoading: true }));
@@ -185,44 +209,55 @@ export function Onboarding() {
         }
     }
 
-    const analysisReady = (state.currentStep === steps.length - 3) && (state.images.length === 3);
-    
-    const onBack = () => {
-        if (state.currentStep > 0) {
-            setState(prev => ({ ...prev, currentStep: state.currentStep - 1 }));
-        }
-    };
-
+    // Render the current step with a button to proceed
     return (
-        <ViewWithBottomButton buttonHidden={analysisReady || !state.isStepValid || state.currentStep === 9} onNext={onNext} onBack={onBack}>
+        <ViewWithBottomButton 
+            buttonText={((state.analysisReady && state.currentStep === 5) ? 'Start Analysis' : 'Next') || 
+                (state.currentStep === 0 && 'Let\'s get started!')} 
+            buttonHidden={!state.isStepValid || state.currentStep === 9} 
+            onNext={onNext}>
             {steps[state.currentStep]}
         </ViewWithBottomButton>
     );
 }
 
-const resizeImage = async (imageUri: string) => {
-    const result = await manipulateAsync(
-        imageUri,
-        // [{ resize: { width: 1024 } }],
-        [{ resize: { width: 1024} }],
-        { compress: 1, format: SaveFormat.JPEG }
-    );
-
-    console.log({"result is typeof": typeof result})
-    
-    return result;
+// Interface for image data
+interface ImageData {
+    path: string,
+    data: Blob
 }
 
-const addImagesToWebStorage = async (images: any[]) => {
-    const resizedImages = [];
+// Function to upload images to a temporary storage bucket
+const addImagesToTemporaryBucket = async (images: File[]) => {
+    const imageDataArray: ImageData[] = [];
+
+    const TEMP_BUCKET = 'temp';
 
     for (const image of images) {
-        const resizedImage = await resizeImage(image.uri);
-        resizedImages.push(resizedImage);
+        const { data, error } = await supabase.storage.from(TEMP_BUCKET)
+        .upload(`${image.name}`, image);
+
+        if (error) {
+            console.error('Error uploading image:', error);
+        } else {
+            console.log('Image uploaded successfully:', data);
+
+            // Fetch the image data from the storage
+            const { data: imageData, error: fetchError } = await supabase.storage.from(TEMP_BUCKET)
+            .download(data?.path || '');
+
+            if (fetchError) {
+                console.error('Error fetching image data:', fetchError);
+            } else {
+                console.log('Image data fetched successfully:', imageData);
+                imageDataArray.push({ path: data?.path || '', data: imageData });
+            }
+        }
     }
 
-    // Extract URIs from the ImageResult objects
-    const imageUrls = resizedImages.map(image => image.uri.toString());
-
-    return imageUrls;
+    return imageDataArray;
 }
+
+const styles = createThemedStyles((theme: typeof Colors.light | typeof Colors.dark) => ({
+    // Define your styles here if needed
+}));
