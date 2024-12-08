@@ -75,7 +75,7 @@ export function Onboarding() {
     // Effect to validate the current step whenever images or current step changes
     useEffect(() => {
         validateCurrentStep();
-    }, [state.images, state.currentStep]);
+    }, [state.images, state.currentStep, state.analysisResults]);
 
     // Effect to watch form changes and validate steps
     useEffect(() => {
@@ -89,7 +89,7 @@ export function Onboarding() {
         return () => subscription.unsubscribe();
     }, [state.images, state.currentStep]);
 
-    // Function to validate the current step based on user input
+    // Function to validate the current step based on user input before the user can move on to the next step
     const validateCurrentStep = () => {
         switch (state.currentStep) {
             case 1:
@@ -100,7 +100,6 @@ export function Onboarding() {
                 break;
             case 3:
                 const skinTone = watch('skinTone');
-                console.log('Current skinTone:', skinTone);
                 setState(prev => ({ ...prev, isStepValid: (skinTone || '').length > 0 }));
                 break;
             case 4:
@@ -110,7 +109,7 @@ export function Onboarding() {
                 setState(prev => ({ ...prev, isStepValid: state.images.length === 3 }));
                 break;
             case TAKE_PHOTO_STEP_INDEX + 1:
-                setState(prev => ({ ...prev, isStepValid: state.analysisIsLoading === false }));
+                setState(prev => ({ ...prev, isStepValid: state.analysisResults.length > 0 }));
                 break;
             default:
                 setState(prev => ({ ...prev, isStepValid: true }));
@@ -119,7 +118,7 @@ export function Onboarding() {
 
     // Steps in the onboarding process
     const steps = useMemo(() => [
-        <OnboardingIntro />,//0
+        <OnboardingIntro />,
         <NameField control={control} watch={watch} />,
         <AgeField control={control} watch={watch} />,
         <SkinColorSelection control={control} />,
@@ -141,26 +140,22 @@ export function Onboarding() {
         </StepContainer>,
         <SignUpIntro name={watch('name')} />,
         <SignUpEmailForm newUser={watch()} />
-    ], []);
+    ], [watch()]);
     
     // Function to proceed to the next step or start analysis
-    const onNext = async () => {
+    const onNext = () => {
         if(state.currentStep === TAKE_PHOTO_STEP_INDEX) {
-            // setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
+            setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
             const newUser : NewUser = {
                 name: watch('name'),
                 age: watch('age'),
                 skinTone: watch('skinTone'),
                 skinType: watch('skinType')
             }
-            await onAnalysisStart(newUser);
-        } 
-        
-        // else {
-        // }
-
-        setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
-
+            onAnalysisStart(newUser);
+        } else {
+            setState(prev => ({ ...prev, currentStep: state.currentStep + 1 }));
+        }
     };
 
     // Placeholder function for when onboarding is complete
@@ -170,54 +165,50 @@ export function Onboarding() {
 
     // Function to start skin analysis by uploading images and making a request
     const onAnalysisStart = async (newUser: NewUser) => {
-
-        setState(prev => ({ ...prev, analysisIsLoading: true }));
-
         // Update all images to file system for temporary storage
-        // const imageDataArray : { path: string, data: Blob }[] = await addImagesToTemporaryBucket(state.images);
+        const imageDataArray : { path: string, data: Blob }[] = await addImagesToTemporaryBucket(state.images);
 
-        // setValue('skinAnalysis.images', imageDataArray.map(imageData => imageData.path));
+        setValue('skinAnalysis.images', imageDataArray.map(imageData => imageData.path));
 
         try {
-            // const response = await axios.post(url, {
-            //     query: `
-            //         query($userProfile: UserProfileInput!, $images: [String!]!) {
-            //             generateSkinAnalysis(userProfile: $userProfile, images: $images) {
-            //                 id
-            //                 content {
-            //                     type
-            //                     text
-            //                     id
-            //                     input
-            //                     name
-            //                 }
-            //                 model
-            //                 role
-            //                 stopReason
-            //                 stopSequence
-            //                 type
-            //                 usage {
-            //                     inputTokens
-            //                     outputTokens
-            //                 }
-            //             }
-            //         }
-            //     `,
-            //     variables: { userProfile: newUser, images: imageDataArray.map(imageData => imageData.path) }
+            const response = await axios.post(url, {
+                query: `
+                    query($userProfile: UserProfileInput!, $images: [String!]!) {
+                        generateSkinAnalysis(userProfile: $userProfile, images: $images) {
+                            id
+                            content {
+                                type
+                                text
+                                id
+                                input
+                                name
+                            }
+                            model
+                            role
+                            stopReason
+                            stopSequence
+                            type
+                            usage {
+                                inputTokens
+                                outputTokens
+                            }
+                        }
+                    }
+                `,
+                variables: { userProfile: newUser, images: imageDataArray.map(imageData => imageData.path) }
+            });
 
-        
-            // });
-            setState(prev => ({ ...prev, analysisResults: "results are here!!!!"}))
-            // setState(prev => ({ ...prev, analysisResults: response.data.data.generateSkinAnalysis.content[0].text }));
+            console.log(response.data)
+
+            setState(prev => ({ ...prev, analysisIsLoading: true }));
+            setState(prev => ({ ...prev, analysisResults: response.data.data.generateSkinAnalysis.content[0].text }));
+            setState(prev => ({ ...prev, analysisIsLoading: false }));
+            
         } catch (error) {
             console.error('Error during analysis:', error);
             console.log("User profile:", newUser);
             console.log("Images:", watch('skinAnalysis.images'));
         }         
-        finally {
-            // Set analysis loading to false after the request completes
-            setState(prev => ({ ...prev, analysisIsLoading: false }));
-        }
     }
 
     // Render the current step with a button to proceed
@@ -226,8 +217,8 @@ export function Onboarding() {
             buttonText={((state.analysisReady && state.currentStep === 5) ? 
                 'Start Analysis' : 'Next') || 
                 (state.currentStep === 0 && 'Let\'s get started!')} 
-            buttonHidden={!state.isStepValid || state.currentStep === 9} 
-            onNext={async() => await onNext()}>
+            buttonHidden={!state.isStepValid || state.currentStep === 9 } 
+            onNext={onNext}>
             {steps[state.currentStep]}
         </ViewWithBottomButton>
     );

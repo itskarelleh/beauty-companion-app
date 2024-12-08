@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 type OnboardingState = {
     currentStep: number;
     images: File[];
-    analysisResults: any;
+    analysisResults: string;
     analysisIsLoading: boolean;
     isStepValid: boolean;
     analysisReady: boolean;
@@ -23,8 +23,8 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     const [state, setState] = useState<OnboardingState>({
         currentStep: 0,
         images: [],
-        analysisResults: [],
-        analysisIsLoading: true,
+        analysisResults: '',
+        analysisIsLoading: false,
         isStepValid: false,
         analysisReady: false, //used for step 6: take photo after the user has successfully taken all pictures
         buttonText: 'Next'

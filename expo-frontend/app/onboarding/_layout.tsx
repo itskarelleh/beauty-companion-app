@@ -2,6 +2,11 @@ import { OnboardingProvider, useOnboarding } from "@/libs/OnboardingProvider";
 import { Stack } from "expo-router";
 import { Button, TouchableOpacity } from "react-native";
 
+
+export const unstable_settings = {
+    initialRouteName: 'index',
+};
+
 export default function OnboardingLayout() {
 
     return (
@@ -33,6 +38,13 @@ function LayoutStack() {
                 headerTitle: "",
                 headerBackButtonDisplayMode: 'minimal',
             }} name="signup-email" />
+            <Stack.Screen
+            name="modal"
+            options={{
+            presentation: 'transparentModal',
+            animation: 'fade',
+            headerShown: false,
+            }} />
         </Stack>
     )
 }
