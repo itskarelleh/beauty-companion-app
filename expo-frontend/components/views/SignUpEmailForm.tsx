@@ -47,24 +47,24 @@ export default function SignupEmailForm({ newUser }: {  newUser: any }) {
         router.push('/home');
     }
 
-    const handleLogin = async () => {
-        console.log('Login');
+    // const handleLogin = async () => {
+    //     console.log('Login');
 
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: watch('email') as string,
-            password: watch('password') as string
-        });
+    //     const { data, error } = await supabase.auth.signInWithPassword({
+    //         email: watch('email') as string,
+    //         password: watch('password') as string
+    //     });
 
-        if(data) {
-            console.log(data);
-            router.push('/home');
-        }
+    //     if(data) {
+    //         console.log(data);
+    //         router.push('/home');
+    //     }
 
-        if (error) {
-            console.log(error);
-            setError(error.message);
-        }
-    }
+    //     if (error) {
+    //         console.log(error);
+    //         setError(error.message);
+    //     }
+    // }
 
     const validateForm = () => {
         const messages = [];
@@ -82,16 +82,16 @@ export default function SignupEmailForm({ newUser }: {  newUser: any }) {
     };
 
     return (
-        <ViewWithBottomButton 
-            buttonDisabled={watch('email') === '' || watch('password') === ''} 
-            onNext={async() => {
-                validateForm();
-                if (validationMessages.length === 0) {
-                    await handleLogin();
-                }
-            }}
-        >  
-            <Form style={styles.parentContainer}>
+        // <ViewWithBottomButton 
+        //     buttonDisabled={watch('email') === '' || watch('password') === ''} 
+        //     onNext={async() => {
+        //         validateForm();
+        //         if (validationMessages.length === 0) {
+        //             await handleLogin();
+        //         }
+        //     }}
+        // >  
+            <View style={styles.parentContainer}>
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>Sign Up</Text>
                 </View>
@@ -109,8 +109,8 @@ export default function SignupEmailForm({ newUser }: {  newUser: any }) {
                         <Text key={index} style={styles.error}>{message}</Text>
                     ))}
                 </View>
-            </Form>
-        </ViewWithBottomButton>
+            </View>
+        // </ViewWithBottomButton>
     )
 }
 
