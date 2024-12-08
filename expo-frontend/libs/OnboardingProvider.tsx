@@ -24,9 +24,9 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
         currentStep: 0,
         images: [],
         analysisResults: [],
-        analysisIsLoading: false,
+        analysisIsLoading: true,
         isStepValid: false,
-        analysisReady: false,
+        analysisReady: false, //used for step 6: take photo after the user has successfully taken all pictures
         buttonText: 'Next'
     });
 

@@ -20,16 +20,17 @@ export const SkinTypeSelection = ({ control } : { control: any }) => {
     const [selectedType, setSelectedType] = useState<string | null>(null);
 
     const options = [
-        { label: 'Normal/Combination', value: SkinType.NORMAL_COMBINATION, image: require('@/assets/images/normal-combination.jpg')},
-        { label: 'Oily', value: SkinType.OILY, image: require('@/assets/images/oily.jpg') },
-        { label: 'Dry', value: SkinType.DRY, image: require('@/assets/images/dry.jpg') },
-        { label: 'Unsure', value: SkinType.UNSURE, image: require('@/assets/images/unsure.jpg') },
+        { id:1, label: 'Normal/Combination', value: SkinType.NORMAL_COMBINATION, image: require('@/assets/images/normal-combination.jpg')},
+        { id: 2, label: 'Oily', value: SkinType.OILY, image: require('@/assets/images/oily.jpg') },
+        { id: 3, label: 'Dry', value: SkinType.DRY, image: require('@/assets/images/dry.jpg') },
+        { id: 4, label: 'Unsure', value: SkinType.UNSURE, image: require('@/assets/images/unsure.jpg') }
     ];
 
     return (
         <StepContainer heading="What's your skin type?">
             {options.map(option => (
                 <Controller 
+                key={option.id}
                     control={control}
                     name={"skinType"}
                     render={({field : { onChange, onBlur } }) => (

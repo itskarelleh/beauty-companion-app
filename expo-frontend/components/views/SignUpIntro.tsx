@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import { Typography } from "@/constants/Typography";
 import { useForm } from "react-hook-form";
 import { useOnboarding } from "@/libs/OnboardingProvider";
+import { createThemedStyles } from "@/libs/styles";
 
 type SignUpFormProps = {
     email?: string;
@@ -17,12 +18,11 @@ type SignUpFormProps = {
 }
 
 export default function SignUpIntro({ name }: { name: string }) {
-    const themeColorScheme = useColorScheme() === 'light' ? Colors.light : Colors.dark;
     const router = useRouter();
 
-    const { control, handleSubmit, watch, getValues } = useForm<SignUpFormProps>();
+    const { watch, getValues } = useForm<SignUpFormProps>();
 
-    const { state, setState } = useOnboarding();
+    const { setState } = useOnboarding();
     
     const handleSignUp = async (provider?: any) => {
         console.log(getValues());
@@ -76,43 +76,41 @@ export default function SignUpIntro({ name }: { name: string }) {
     }
 
     return (
-        <ViewWithBottomButton buttonHidden={!watch('email') && !watch('password')} onNext={() => null}>
-            <View style={styles(themeColorScheme).container}>
-                <View style={styles(themeColorScheme).signUpContainer}>
-                    <Text style={styles(themeColorScheme).title}>Welcome, <br/>{name}</Text>
-                    <Text style={styles(themeColorScheme).subtitle}>Sign up to continue</Text>
+        <View style={styles.container}>
+            <View style={styles.signUpContainer}>
+                <Text style={styles.title}>Welcome, <br/>{name}</Text>
+                <Text style={styles.subtitle}>Sign up to continue</Text>
+            </View>
+            <View style={styles.authOptionsContainer}>
+                <View style={styles.signInButtonContainer}>
+                    <StyledButton title="Sign up with email" onPress={handleNext} />
                 </View>
-                <View style={styles(themeColorScheme).authOptionsContainer}>
-                    <View style={styles(themeColorScheme).signInButtonContainer}>
-                        <StyledButton title="Sign up with email" onPress={handleNext} />
-                    </View>
-                    <View style={styles(themeColorScheme).or}>
-                        <View style={styles(themeColorScheme).orLine} />
-                        <Text>or</Text>
-                        <View style={styles(themeColorScheme).orLine} />
-                    </View>
-                    <View style={styles(themeColorScheme).socialButtons}>
-                        <TouchableOpacity style={styles(themeColorScheme).socialButton} onPress={() => handleSignUp('google')}>
-                            <FaGoogle style={styles(themeColorScheme).socialButtonIcon} />
-                        </TouchableOpacity>
-                        {/* <TouchableOpacity style={styles(themeColorScheme).socialButton} onPress={() => handleSignUp('apple')}>
-                            <FaApple style={styles(themeColorScheme).socialButtonIcon} />
-                        </TouchableOpacity> */}
-                        <TouchableOpacity style={styles(themeColorScheme).socialButton} onPress={() => handleSignUp('facebook')}>
-                            <FaFacebook style={styles(themeColorScheme).socialButtonIcon} />
-                        </TouchableOpacity>
-                    </View>
+                <View style={styles.or}>
+                    <View style={styles.orLine} />
+                    <Text>or</Text>
+                    <View style={styles.orLine} />
+                </View>
+                <View style={styles.socialButtons}>
+                    <TouchableOpacity style={styles.socialButton} onPress={() => handleSignUp('google')}>
+                        <FaGoogle style={styles.socialButtonIcon} />
+                    </TouchableOpacity>
+                    {/* <TouchableOpacity style={styles.socialButton} onPress={() => handleSignUp('apple')}>
+                        <FaApple style={styles.socialButtonIcon} />
+                    </TouchableOpacity> */}
+                    <TouchableOpacity style={styles.socialButton} onPress={() => handleSignUp('facebook')}>
+                        <FaFacebook style={styles.socialButtonIcon} />
+                    </TouchableOpacity>
                 </View>
             </View>
-        </ViewWithBottomButton>
+        </View>
     )
 }
 
-const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.create({
+const styles = createThemedStyles((theme: typeof Colors.light | typeof Colors.dark) => ({
     container: {
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        // alignItems: 'center',
         gap: 8,
         width: '100%',
         flex: 1
@@ -181,4 +179,4 @@ const styles = (theme: typeof Colors.light | typeof Colors.dark) => StyleSheet.c
         justifyContent: 'center',
         flex: 1
     }
-})
+}))
